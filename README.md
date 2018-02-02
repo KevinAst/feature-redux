@@ -1,5 +1,3 @@
-# feature-redux
-
 # feature-redux *(feature-u redux integration)*
 
 **feature-redux** promotes the `reducerAspect` (a **feature-u**
@@ -38,7 +36,7 @@ TODO: Badges Here
 <ul>
 
 **feature-redux** configures [redux] through the `reducerAspect`
-(_to be supplied to_ `launchApp()`), which extends the Feature object,
+(_to be supplied to_ [`launchApp()`]), which extends the Feature object,
 adding support for the `Feature.reducer` property, referencing
 feature-based reducers.
 
@@ -78,30 +76,41 @@ Additional information can be found in the following sections.
 
 ## Install
 
-```shell
-npm install --save feature-redux
-```
+- **peerDependencies** ... your should already have these, because
+  **this is our integration point** _(but just in case)_:
 
-**Please Note**: the following **peerDependencies** are in effect:
-- **feature-u** (_??ver_)
-- **[redux]** (_??ver_)
-- **react** (??ver) ... because of react component injection (in our case jsx )
+  ```shell
+  npm install --save react
+  npm install --save redux
+  npm install --save react-redux
+  ```
+  <!--- WITH REVEAL of USAGE:
+  npm install --save react        # USAGE: inject <Provider> component
+  npm install --save redux        # USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
+  npm install --save react-redux  # USAGE: <Provider> component
+  ---> 
+
+- **the main event**:
+
+  ```shell
+  npm install --save feature-redux
+  ```
 
 ## Usage
 
 1. Register the **feature-redux** `reducerAspect` through
-   **feature-u**'s `launchApp()` (_see: **NOTE** below_):
+   **feature-u**'s [`launchApp()`] _(see: `**1**` below)_.
 
    **myAppMain.js**
    ```js
    import {launchApp}      from 'feature-u';
-   import {reducerAspect}  from 'feature-redux'; // *** NOTE ***
+   import {reducerAspect}  from 'feature-redux'; // **1**
    import features         from './feature';
 
    export default launchApp({
 
      aspects: [
-       reducerAspect,    // *** NOTE ***
+       reducerAspect,                            // **1**
        ... other Aspects here
      ],
 
@@ -114,14 +123,14 @@ npm install --save feature-redux
    });
    ```
 
-2. Now you can specify a `reducer` `createFeature()` named parameter
-   (_in any of your features that maintain state_) referencing the
-   reducer function that manages the feature state (_see: **NOTE**
-   below_).
+2. Simply specify a `Feature.reducer` in any of your features that
+   maintain state _(using `createFeature()`)_.  This references the
+   reducer function that maintains the feature's state _(see: `**2**`
+   below)_.
 
-   Because your feature state is combined into one overall appState
-   (for all features), the reducer must identify it's root location,
-   through the `slicedReducer()` function.
+   Because each feature state is combined into one overall appState
+   _including all features)_ the reducer must identify it's root
+   location, through the `slicedReducer()` function.
 
    **myXyzFeature.js**
    ```js
@@ -131,10 +140,14 @@ npm install --save feature-redux
    
    export default createFeature({
      name:     'myXyzFeature',
-     reducer:  slicedReducer('my.feature.state.location', myXyzFeatureReducer), // *** NOTE ***
-     ... other props here
+     reducer:  slicedReducer('my.feature.state.location', myXyzFeatureReducer), // **1**
+     ... other aspect properties here
    });
    ```
+
+At this point **redux** is **completely setup for your application!**
+The [redux store] has been created and is accessible through the
+standard redux [`connect()`] function.  **That was easy!!**
 
 In the nutshell, that's most everything you need to know to use
 **feature-redux**!  _Go forth and compute!_
@@ -357,11 +370,9 @@ export const isDeviceReady = (appState) => getFeatureState(appState).status === 
 
 ## Interface Points
 
-The primary accomplishment of **feature-redux** is the creation
-(_and configuration_) of the [**redux app
-store**](https://redux.js.org/docs/api/Store.html).  The **Aspect
-Interface** to this process (_i.e. the inputs and outputs_) are
-documented here.
+The primary accomplishment of **feature-redux** is the creation (_and
+configuration_) of the [redux store].  The **Aspect Interface** to
+this process (_i.e. the inputs and outputs_) are documented here.
 
 ### Inputs
 
@@ -391,8 +402,7 @@ documented here.
    [`Provider`](https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store)
    component at the root of your application DOM.  This enables app
    component access to the [redux store] (along with it's `dispatch()`
-   and `getState()`) through the standard redux
-   [`connect()`](https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options)
+   and `getState()`) through the standard redux [`connect()`]
    function.
 
 2. **Middleware Features**:
@@ -419,6 +429,16 @@ documented here.
 
 
 
+<!--- ?? USING NOW ---> 
+[redux store]:      https://redux.js.org/docs/api/Store.html
+[`connect()`]:      https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options
+
+[`launchApp()`]:    https://feature-u.js.org/cur/api.html#launchApp
+
+
+
+<!--- ?? UNSURE if being used ---> 
+
 
 [action-u]:         https://www.npmjs.com/package/action-u
 [actions]:          https://redux.js.org/docs/basics/Actions.html
@@ -426,6 +446,5 @@ documented here.
 [redux-actions]:    https://www.npmjs.com/package/redux-actions
 [redux]:            http://redux.js.org/
 [redux middleware]: https://redux.js.org/docs/advanced/Middleware.html
-[redux store]:      https://redux.js.org/docs/api/Store.html
 [selectors]:        https://gist.github.com/abhiaiyer91/aaf6e325cf7fc5fd5ebc70192a1fa170
 
