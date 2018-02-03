@@ -476,6 +476,8 @@ this process (_i.e. the inputs and outputs_) are documented here.
 
 ### reducerAspect: Aspect
 
+<ul><!--- only indentation that works in github ---> 
+
 <div style="margin-left: 2em;">
 
 The `reducerAspect` is the **feature-u** plugin that facilitates
@@ -496,12 +498,12 @@ To use this aspect:
    optionally reference a federated namespace corresponding to the
    desired target shape.
 
-</div>
+</ul>
 
 
 ### slicedReducer()
 
-<ul style="margin-left: 2em;">
+<ul style="margin-left: 2em;"><!--- only indentation that works in github ---> 
 
 **API:** `slicedReducer(slice, reducer): reducer`
 
