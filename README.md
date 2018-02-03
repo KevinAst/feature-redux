@@ -6,7 +6,9 @@ facilitates [redux] integration to your features.
 
 **Backdrop:**
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 **feature-u** is a utility that facilitates feature-based project
 organization for your [react] project. It helps organize your
@@ -15,7 +17,7 @@ operates under an open plugin architecture where Aspects integrate
 feature-u to other framework/utilities that match your specific
 run-time stack.
 
-</div>
+</ul>
 
 <!--- ?? TODO: DOC AI: update ALL links ---> 
 
@@ -32,7 +34,9 @@ TODO: Badges Here
 
 **Overview:**
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 **feature-redux** configures [redux] through the `reducerAspect`
 (_which is supplied to_ **feature-u**'s [`launchApp()`]).  This
@@ -56,7 +60,7 @@ As an aside, because **feature-redux** manages redux, it also
 provides an integration point to other Aspects that need to inject
 their redux middleware.
 
-</div>
+</ul>
 
 Let's see how this all works together ...
 
@@ -217,7 +221,9 @@ creators and action types through a library like [action-u] or
 
 #### Public Actions
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 There are a small number of cases where feature-based actions may need
 to be promoted outside of a feature's boundry.  Say, for example,
@@ -231,11 +237,13 @@ Please note that in consideration of feature encapsulation, *best
 practices would strive to minimize the public promotion of actions
 outside the feature boundary*.
 
-</div>
+</ul>
 
 #### Action Uniqueness
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 One characteristic that actions must adhere to is: **action types must
 be unique across the entire app**, *because they are interpreted at an
@@ -286,7 +294,7 @@ This example results in actions of type:
 - `featureA.action1`
 - `featureA.action2`
 
-</div>
+</ul>
 
 ### Reducers (state)
 
@@ -312,7 +320,9 @@ Expansion].
 
 #### Sliced Reducers
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 Because **feature-redux** must combine the reducers from all features
 into one overall appState, it requires that each reducer be
@@ -356,7 +366,7 @@ appState: {
 }
 ```
 
-</div>
+</ul>
 
 
 ### Selectors (encapsulating state)
@@ -372,7 +382,9 @@ close proximity to your reducers)_.
 
 #### Public Selectors
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 While **feature-u** does not directly manage anything about selectors, a
 feature may wish to promote some of it's selectors using the
@@ -382,12 +394,14 @@ Please note that in consideration of feature encapsulation, *best
 practices would strive to minimize the public promotion of feature
 state (and selectors) outside the feature boundary*.
 
-</div>
+</ul>
 
 
 #### Feature State Location (Single Source of Truth)
 
-<div style="margin-left: 2em;">
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 Another benefit of [`slicedReducer()`] is that not only does it
 embellish the reducer with a `slice` property _(interpreted by
@@ -418,7 +432,7 @@ export const isDeviceReady = (appState) => getFeatureState(appState).status === 
 ... more selectors
 ```
 
-</div>
+</ul>
 
 
 ## Interface Points
@@ -476,34 +490,36 @@ this process (_i.e. the inputs and outputs_) are documented here.
 
 ### reducerAspect: Aspect
 
-<ul><!--- only indentation that works in github ---> 
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
-<div style="margin-left: 2em;">
+??$$
 
 The `reducerAspect` is the **feature-u** plugin that facilitates
 [redux] integration to your features.
 
 To use this aspect:
 
-1. Within your mainline, register the **feature-redux**
-   `reducerAspect` to **feature-u**'s [`launchApp()`].
+- Within your mainline, register the **feature-redux**
+  `reducerAspect` to **feature-u**'s [`launchApp()`].
 
-2. Within each feature that maintains state, simply register the
-   feature's reducer through the `Feature.reducer` property _(using
-   **feature-u**'s `createFeature()`)_.
+- Within each feature that maintains state, simply register the
+  feature's reducer through the `Feature.reducer` property _(using
+  **feature-u**'s `createFeature()`)_.
 
-   Because the state of each feature is combined into one overall
-   appState, the feature reducer must identify it's root location,
-   through the [`slicedReducer()`] function.  This **slice** can
-   optionally reference a federated namespace corresponding to the
-   desired target shape.
+  Because the state of each feature is combined into one overall
+  appState, the feature reducer must identify it's root location,
+  through the [`slicedReducer()`] function.  This **slice** can
+  optionally reference a federated namespace corresponding to the
+  desired target shape.
 
 </ul>
 
 
 ### slicedReducer()
 
-<ul style="margin-left: 2em;"><!--- only indentation that works in github ---> 
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+??$$
 
 **API:** `slicedReducer(slice, reducer): reducer`
 
@@ -537,6 +553,8 @@ as a single-source-of-truth in your selector definitions_).
 **Return**: reducerFn
 
 <ul style="margin-left: 2em;">
+
+??$$
 
 the supplied reducer, embellished with both the slice and a
 convenience selector:
