@@ -491,6 +491,8 @@ To use this aspect:
   optionally reference a federated namespace corresponding to the
   desired target shape.
 
+Please refer to the [Usage] section for examples of this process.
+
 </ul>
 
 
@@ -549,6 +551,7 @@ reducer.getSlicedState(appState): slicedState
 <!--- **feature-redux** ---> 
 [`reducerAspect`]:   #reduceraspect-aspect
 [Sliced Reducers]:   #sliced-reducers
+[Usage]:             #usage
 [`slicedReducer()`]: #slicedreducer
 
 <!--- **feature-redux-logic** ---> 
@@ -563,6 +566,10 @@ reducer.getSlicedState(appState): slicedState
 [`Feature`]:              https://feature-u.js.org/cur/api.html#Feature
 [`App`]:                  https://feature-u.js.org/cur/api.html#App
 [Managed Code Expansion]: https://feature-u.js.org/cur/crossCommunication.html#managed-code-expansion
+
+<!--- react ---> 
+[react]:            https://reactjs.org/
+
 
 <!--- redux ---> 
 [redux]:            https://redux.js.org/
