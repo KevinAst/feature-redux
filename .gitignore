@@ -1,0 +1,21 @@
+# node dependencies (defined via "npm install")
+/node_modules/
+
+# bundled distribution (generated via "npm run build")
+/dist/
+/lib/
+/es/
+
+# code coverage reports
+/.nyc_output/
+/coverage/
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# runtime data
+pids
+*.pid
+*.seed
