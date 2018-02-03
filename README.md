@@ -501,7 +501,7 @@ To use this aspect:
 
 ### slicedReducer()
 
-<div style="margin-left: 2em;">
+<section style="margin-left: 2em;">
 
 **API:** `slicedReducer(slice, reducer): reducer`
 
@@ -534,7 +534,7 @@ as a single-source-of-truth in your selector definitions_).
 
 **Return**: reducerFn
 
-<div style="margin-left: 2em;">
+<section style="margin-left: 2em;">
 
 the supplied reducer, embellished with both the slice and a
 convenience selector:
@@ -543,9 +543,9 @@ convenience selector:
 reducer.slice: slice
 reducer.getSlicedState(appState): slicedState
 ```
-</div>
+</section>
 
-</div>
+</section>
 
 
 
