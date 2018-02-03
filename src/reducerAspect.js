@@ -8,27 +8,8 @@ import {createAspect}     from 'feature-u';       // peerDependency:
 import slicedReducer      from './slicedReducer';
 import isFunction         from 'lodash.isfunction';
 
-/**
- * @typedef {Aspect} reducerAspect
- * 
- * The reducerAspect is a **feature-u** plugin that facilitates redux
- * integration to your features.
- * 
- * To use this aspect:
- * 
- *  1. Register it as one of your aspects to **feature-u**'s `launchApp()`.
- *  
- *  2. Specify a `reducer` `createFeature()` named parameter (_in any
- *     of your features that maintain state_) referencing the reducer
- *     function that manages the feature state.
- *  
- *     Because your feature state is combined into one overall
- *     appState (for all features), the reducer must identify it's
- *     root location, through the `slicedReducer()` function.
- * 
- * **Please refer to the User Docs** for a complete description with
- * examples.
- */
+
+// NOTE: See README for complete description
 export default createAspect({
   name: 'reducer', // to fully manage all of redux, we ONLY need the reducers (hence our name)!
   expandFeatureContent,
@@ -57,6 +38,8 @@ export default createAspect({
  * valid).  This is a specialized validation of the expansion
  * function, over-and-above what is checked in the standard
  * validateFeatureContent() hook.
+ *
+ * @private
  */
 function expandFeatureContent(app, feature) {
   // hold on to our reducer slice
