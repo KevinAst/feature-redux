@@ -66,9 +66,10 @@ Let's see how this all works together ...
 - [A Closer Look](#a-closer-look)
   - [Actions](#actions)
     - [Public Actions](#public-actions)
-    - [Action Uniqueness](#action-uniqueness)
+    - [Action Uniqueness (Single Source of Truth)](#action-uniqueness-single-source-of-truth)
   - [Reducers (state)](#reducers-state)
     - [Sliced Reducers]
+    - [State Root (Single Source of Truth)](#state-root-single-source-of-truth)
   - [Selectors (encapsulating state)](#selectors-encapsulating-state)
     - [Public Selectors](#public-selectors)
     - [Feature State Location (Single Source of Truth)](#feature-state-location-single-source-of-truth)
@@ -230,7 +231,7 @@ outside the feature boundary*.
 
 </ul>
 
-#### Action Uniqueness
+#### Action Uniqueness (Single Source of Truth)
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
@@ -354,6 +355,38 @@ appState: {
 ```
 
 </ul>
+
+
+#### State Root (Single Source of Truth)
+
+<ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+You are free to use any root location for your feature's state
+(i.e. the slice).  In many cases, this is dictated by the overall
+state shape.
+
+However, depending on the context, it is often useful to use the
+`featureName` somewhere within this definition.  This **best
+practice** has the added benefit of readily associating each slice of
+state to the feature they belong to.
+
+We can refine the example above, by programmatically injecting the
+`featureName`.  This yields the same result as before, but benefits
+from the **single-source-of-truth** principle.
+
+```js
+import featureName from './featureName';
+import reducer     from './reducer';
+
+const currentView = createFeature({
+  name:     featureName,
+  reducer:  slicedReducer(`view.${featureName}`, reducer),
+  ...
+});
+```
+
+</ul>
+
 
 
 ### Selectors (encapsulating state)
