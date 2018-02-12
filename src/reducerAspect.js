@@ -1,12 +1,20 @@
-import React              from 'react';           // peerDependency
+import React                   from 'react';           // peerDependency
 import {applyMiddleware,
         compose,
         createStore,
-        combineReducers}  from 'redux';           // peerDependency
-import {Provider}         from 'react-redux';     // peerDependency
-import {createAspect}     from 'feature-u';       // peerDependency: 
-import slicedReducer      from './slicedReducer';
-import isFunction         from 'lodash.isfunction';
+        combineReducers}       from 'redux';           // peerDependency
+import {Provider}              from 'react-redux';     // peerDependency
+import {createAspect,
+        extendAspectProperty}  from 'feature-u';       // peerDependency: 
+import slicedReducer           from './slicedReducer';
+import isFunction              from 'lodash.isfunction';
+
+// register feature-redux proprietary Aspect APIs
+// ... required to pass feature-u validation
+// ... must occur globally (during our in-line code expansion)
+//     guaranteeing the new API is available during feature-u validation
+extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
+extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
 
 
 // NOTE: See README for complete description
@@ -159,12 +167,6 @@ function getReduxStore() {
  *
  * @param {App} app the App object used in feature cross-communication.
  * 
- * @param {Feature[]} activeFeatures - The set of active (enabled)
- * features that comprise this application.  This can be used in an
- * optional Aspect/Feature cross-communication.  As an example, an Xyz
- * Aspect may define a Feature API by which a Feature can inject DOM
- * in conjunction with the Xyz Aspect DOM injection.
- * 
  * @param {reactElm} curRootAppElm - the current react app element root.
  *
  * @return {reactElm} a new react app element root (which in turn must
@@ -173,7 +175,7 @@ function getReduxStore() {
  *
  * @private
  */
-function injectRootAppElm(app, activeFeatures, curRootAppElm) {
+function injectRootAppElm(app, curRootAppElm) {
   return (
     <Provider store={this.appStore}>
       {curRootAppElm}
