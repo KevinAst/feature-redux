@@ -9,17 +9,11 @@ import {createAspect,
 import slicedReducer           from './slicedReducer';
 import isFunction              from 'lodash.isfunction';
 
-// register feature-redux proprietary Aspect APIs
-// ... required to pass feature-u validation
-// ... must occur globally (during our in-line code expansion)
-//     guaranteeing the new API is available during feature-u validation
-extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
-extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
-
 
 // NOTE: See README for complete description
 export default createAspect({
   name: 'reducer', // to fully manage all of redux, we ONLY need the reducers (hence our name)!
+  genesis,
   expandFeatureContent,
   validateFeatureContent,
   assembleFeatureContent,
@@ -27,6 +21,27 @@ export default createAspect({
   getReduxStore,
   injectRootAppElm,
 });
+
+
+/**
+ * Register feature-redux proprietary Aspect APIs (required to pass
+ * feature-u validation).
+ * This must occur early in the life-cycle (i.e. this method) to
+ * guarantee the new API is available during feature-u validation.
+ *
+ * NOTE: To better understand the context in which any returned
+ *       validation messages are used, feature-u will prefix them
+ *       with: 'launchApp() parameter violation: '
+ *
+ * @return {string} NONE FOR US ... an error message when self is in an invalid state
+ * (falsy when valid).
+ *
+ * @private
+ */
+function genesis() {
+  extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
+  extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
+}
 
 
 /**
