@@ -87,14 +87,16 @@ Let's see how this all works together ...
   this is our integration point** _(but just in case)_:
 
   ```shell
+  npm install --save feature-u
   npm install --save react
   npm install --save redux
   npm install --save react-redux
   ```
   <!--- WITH REVEAL of USAGE:
-  npm install --save react        # USAGE: inject <Provider> component
-  npm install --save redux        # USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
-  npm install --save react-redux  # USAGE: <Provider> component
+  npm install --save feature-u    # VER: >=0.1.0   USAGE: createAspect(), extendAspectProperty()
+  npm install --save react        # VER: >=0.14.0  USAGE: inject <Provider> component
+  npm install --save redux        # VER: >=3.1.0   USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
+  npm install --save react-redux  # VER: >=1.0.0   USAGE: <Provider> component
   ---> 
 
 - **the main event**:
