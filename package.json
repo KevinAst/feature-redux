@@ -33,7 +33,7 @@
     "build:watch":           "npm run build -- --watch",
     "check":                 "npm-run-all lint pkgReview",
     "clean":                 "npm-run-all build:clean cov:clean",
-    "cov":                   "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text mocha --compilers js:babel-core/register --colors \"src/**/*.spec.js\"",
+    "cov":                   "?? trash change",
     "cov:clean":             "rimraf coverage",
     "cov:publish":           "cat coverage/lcov.info | codacy-coverage --verbose",
     "dev":                   "npm run test:all:watch",
