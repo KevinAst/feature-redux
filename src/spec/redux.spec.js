@@ -2,7 +2,7 @@ import React            from 'react';
 import {createFeature,
         launchApp}      from 'feature-u';
 import {reducerAspect,
-        slicedReducer}  from '../../tooling/ModuleUnderTest'; // ?? '../index.js';
+        slicedReducer}  from '..'; // STOP USING: '../../tooling/ModuleUnderTest';
 
 describe('full redux test configured with reducerAspect', () => {
 

@@ -1,4 +1,4 @@
-import {reducerAspect}  from '../../tooling/ModuleUnderTest';
+import {reducerAspect}  from '..'; // STOP USING: '../../tooling/ModuleUnderTest';
 
 describe('reducerAspect() tests', () => {
 
