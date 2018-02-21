@@ -70,20 +70,6 @@
     "url": "https://github.com/KevinAst/feature-redux/issues"
   },
   "homepage": "https://github.com/KevinAst/feature-redux",
-  "nyc": {
-    "include": [
-      "src/**/*.js"
-    ],
-    "exclude": [
-      "**/spec/**",
-      "**/*.spec.js"
-    ],
-    "require": [
-      "babel-register"
-    ],
-    "sourceMap": false,
-    "instrument": false
-  },
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
@@ -102,7 +88,6 @@
     "eslint-plugin-react": "^7.6.1",
     "jest": "^22.1.4",
     "npm-run-all": "^4.0.2",
-    "nyc": "^10.2.0",
     "react": ">=0.14.0",
     "react-redux": ">=1.0.0",
     "redux": ">=3.1.0",
