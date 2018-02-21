@@ -2,7 +2,7 @@ import React            from 'react';
 import {createFeature,
         launchApp}      from 'feature-u';
 import {reducerAspect,
-        slicedReducer}  from '../../tooling/ModuleUnderTest'; // ?? '../index.js';
+        slicedReducer}  from '..'; // STOP USING: '../../tooling/ModuleUnderTest';
 
 describe('full redux test configured with reducerAspect', () => {
 
@@ -10,13 +10,13 @@ describe('full redux test configured with reducerAspect', () => {
     name:    'feature1',
     reducer: slicedReducer('feature1',
                            (state=null, action) => 'feature1_state'),
-    appWillStart({app, curRootAppElm}) {
+    appWillStart() { // named params NOT USED: {app, curRootAppElm} ... lint giving me: 'app' is missing in props validation ... don't understand: a react/prop-types lint rule
       return <p>This is a test</p>; // do this so <Provider> won't complain about null children
     }
 
   });
 
-  const app = launchApp({
+  launchApp({
 
     aspects: [
       reducerAspect
