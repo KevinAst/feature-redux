@@ -12,7 +12,7 @@ function applyAppState(features) {
   // ... function under test
   const appReducerFn = accumAppReducer('reducer', features);
 
-  // return the appStat from running the reducer
+  // return the appState from running the reducer
   const appState = appReducerFn(undefined, anyAction);
   return appState;
 }
@@ -93,6 +93,10 @@ describe('feature-u accumAppReducer() tests', () => {
   test('Error detected for duplicate intermediate slices (in any order)', () => {
     expect(()=>applyAppState([feature3, feature4]))
       .toThrow(/cannot be specified by multiple features/);
+    // THROW: *** ERROR*** feature-u launchApp() constraint violation: reducer slice: 'complex.slice'
+    //                     cannot be specified by multiple features 
+    //                     (either as an intermediate node, or an outright duplicate)
+    //                     because we can't intermix feature reducers and combineReducer() from launchApp()
   });
   
   test('Expected real-world case', () => {
@@ -123,6 +127,31 @@ describe('feature-u accumAppReducer() tests', () => {
           discovery: 'state-for-discovery',
         },
       });
+  });
+
+  test('Test gobbledy goop', () => {
+
+    const myReducer = (state=null, action) => 'myReducer';
+
+    const featureGobbledyGoop = createFeature({
+      name:    'featureGobbledyGoop',
+      reducer: slicedReducer('~!@#$ . %^&*()_+{}:;"', myReducer),
+    });
+
+    expect(applyAppState([featureGobbledyGoop]))
+      .toEqual({
+        "~!@#$ ": {
+          " %^&*()_+{}:;\"": "myReducer",
+        },
+      });
+
+  });
+
+  test('Test NO feature reducers', () => {
+
+    expect(applyAppState([])) // NO-REDUCERS: currently uses an identity appReducerFn AND logs a forced WARNING.
+      .toBe(undefined);
+
   });
 
 });
