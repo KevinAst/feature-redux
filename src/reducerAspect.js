@@ -5,10 +5,13 @@ import {applyMiddleware,
         combineReducers}       from 'redux';           // peerDependency
 import {Provider}              from 'react-redux';     // peerDependency
 import {createAspect,
+        launchApp,
         extendAspectProperty}  from 'feature-u';       // peerDependency: 
 import slicedReducer           from './slicedReducer';
 import isFunction              from 'lodash.isfunction';
 
+// our logger (integrated/activated via feature-u)
+const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** ');
 
 // NOTE: See README for complete description
 export default createAspect({
@@ -67,7 +70,7 @@ function genesis() {
 function expandFeatureContent(app, feature) {
   // hold on to our reducer slice
   // ... so as to apply it to our final resolved reducer (below)
-  const slice = feature.reducer.slice;
+  const slice = feature[this.name].slice;
 
   // insure the slice is defined
   if (!slice) {
@@ -124,7 +127,12 @@ function assembleFeatureContent(app, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
   const appReducer = accumAppReducer(this.name, activeFeatures);
-  // ?? handle NO reducers? a) NO: silently no-op redux (with warning), b) YES: throw error (saying if your using "reducer" aspect, you need to use it)
+
+  // TODO: NO-REDUCERS: Currently if NO Feature.reducer AspectContent is found, 
+  //       we are returning an identity function AND log a WARNING.
+  //       - This happens in accumAppReducer() ... see: NO-REDUCERS (below)
+  //       - Should we consider this an Error?
+  //         ... throw Error (saying if your using "reducer" aspect, you need to use it)
 
   // retain for subsequent usage
   this.appReducer = appReducer;
@@ -265,7 +273,7 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
         // 1: intermediate node cannot be a reducer, because we can't intermix feature reducer with combineReducer (of launchApp)
         // 2: all leafs MUST be reducer functions (this is actually FORCED by our code below)
         if ( isFunction(subNode) || (subNodeExisted && leafNode) ) { // TO BE ORDER INDEPENDENT, added: or condition
-          throw new Error(`*** ERROR*** feature-u launchApp() constraint violation: reducer slice: '${runningShape}' cannot be specified by multiple features (either as an intermediate node, or an outright duplicate) because we can't intermix feature reducers and combineReducer() from launchApp()`);
+          throw new Error(`*** ERROR*** feature-redux constraint violation: reducer slice: '${runningShape}' cannot be specified by multiple features (either as an intermediate node, or an outright duplicate) because we can't intermix feature reducers and combineReducer() from launchApp()`);
         }
 
         // inject our new sub-node -or- the reducer for leaf nodes
@@ -279,8 +287,14 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
 
   // convert our "shaped" genesis structure into a single top-level app reducer function
   const appHasNoState = Object.keys(shapedGenesis).length === 0;
-  const appReducer    = appHasNoState 
-                          ? (s) => s // identity reducer (for no state) ?? is this an error?
+  if (appHasNoState) { // TODO: NO-REDUCERS - should this be an error?
+    logf.force(`***WARNING WARNING WARNING*** NO Feature.reducer AspectContent was found!
+An identity appReducerFn is being used.
+Subsequent releases may THROW an Exception
+... if your using reducerAspect WHY would you not have reducers?`);
+  }
+  const appReducer    = appHasNoState
+                          ? (s) => s // identity reducer (for no state) TODO: NO-REDUCERS: should this be an error? ... shapedGenesis IS: {}
                           : accumReducer(shapedGenesis);
   return appReducer;
 }
