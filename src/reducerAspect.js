@@ -11,7 +11,7 @@ import slicedReducer           from './slicedReducer';
 import isFunction              from 'lodash.isfunction';
 
 // our logger (integrated/activated via feature-u)
-const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** ');
+const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect: ');
 
 // NOTE: See README for complete description
 export default createAspect({
@@ -42,6 +42,8 @@ export default createAspect({
  * @private
  */
 function genesis() {
+  logf('genesis() registering two new Aspect properties: getReduxStore() -and- getReduxMiddleware()');
+
   extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
   extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
 }
@@ -84,6 +86,8 @@ function expandFeatureContent(app, feature) {
   // apply same slice to our final resolved reducer
   // ... so it is accessable to our internals (i.e. launchApp)
   slicedReducer(slice, feature[this.name]);
+
+  logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer managedExpansion()`);
 }
 
 
@@ -127,6 +131,7 @@ function assembleFeatureContent(app, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
   const appReducer = accumAppReducer(this.name, activeFeatures);
+  // NOTE: logf() is in accumAppReducer() surrogate
 
   // TODO: NO-REDUCERS: Currently if NO Feature.reducer AspectContent is found, 
   //       we are returning an identity function AND log a WARNING.
@@ -154,14 +159,21 @@ function assembleFeatureContent(app, activeFeatures) {
 function assembleAspectResources(app, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
+  const hookSummary = [];
   const middleware = aspects.reduce( (accum, aspect) => {
     if (aspect.getReduxMiddleware) {
+      hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
       accum.push( aspect.getReduxMiddleware() );
     }
     return accum;
   }, []);
+  logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
+
+  // ?? put this in a seperate internal method (a defensive measure to allow easier overriding by client)
+  // ?? NOTE this in diag.txt
 
   // define our Redux app-wide store WITH optional middleware registration
+  logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
   const appStore = middleware.length === 0
                     ? createStore(this.appReducer)
                     : createStore(this.appReducer,
@@ -199,6 +211,7 @@ function getReduxStore() {
  * @private
  */
 function injectRootAppElm(app, curRootAppElm) {
+  logf(`injectRootAppElm() introducing redux <Provider> component into rootAppElm`);
   return (
     <Provider store={this.appStore}>
       {curRootAppElm}
@@ -292,6 +305,9 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
 An identity appReducerFn is being used.
 Subsequent releases may THROW an Exception
 ... if your using reducerAspect WHY would you not have reducers?`);
+  }
+  else {
+    logf(`assembleFeatureContent() the overal appState shape is: `, shapedGenesis);
   }
   const appReducer    = appHasNoState
                           ? (s) => s // identity reducer (for no state) TODO: NO-REDUCERS: should this be an error? ... shapedGenesis IS: {}
