@@ -21,6 +21,7 @@ export default createAspect({
   validateFeatureContent,
   assembleFeatureContent,
   assembleAspectResources,
+  reducerAspect_createReduxStore,
   getReduxStore,
   injectRootAppElm,
 });
@@ -46,6 +47,9 @@ function genesis() {
 
   extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
   extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
+
+  extendAspectProperty('reducerAspect_createReduxStore'); // Aspect.reducerAspect_createReduxStore(appReducer, middlewareArr): appStore
+                                                          // ... AI: technically this if for reducerAspect only (if the API ever supports this)
 }
 
 
@@ -169,18 +173,37 @@ function assembleAspectResources(app, aspects) {
   }, []);
   logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
 
-  // ?? put this in a seperate internal method (a defensive measure to allow easier overriding by client)
-  // ?? NOTE this in diag.txt
-
-  // define our Redux app-wide store WITH optional middleware registration
+  // create our redux store (retained in self for subsequent usage)
+  // ... accomplished in internal micro method (a defensive measure to allow easier overriding by client)
   logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
-  const appStore = middleware.length === 0
-                    ? createStore(this.appReducer)
-                    : createStore(this.appReducer,
-                                  compose(applyMiddleware(...middleware)));
+  this.appStore = this.reducerAspect_createReduxStore(this.appReducer, middleware);
+}
 
-  // retain for subsequent usage
-  this.appStore = appStore;
+
+/**
+ * An internal micro method that creates/returns the redux app store
+ * WITH optional middleware regsistration.
+ *
+ * This logic is broken out in this internal method as a defensive
+ * measure to make it easier for a client to override (if needed for
+ * some unknown reason).
+ *
+ * @param {reducerFn} the top-level app reducer function.
+ *
+ * @param {reduxMiddleware[]} middlewareArr - the optional set of
+ * reduxMiddleware items to register to redux (zero length array if
+ * none).
+ *
+ * @return {reduxAppStore} the newly created redux app store.
+ *
+ * @private
+ */
+function reducerAspect_createReduxStore(appReducer, middlewareArr) {
+  // define our Redux app-wide store WITH optional middleware regsistration
+  return  middlewareArr.length === 0
+           ? createStore(appReducer)
+           : createStore(appReducer,
+                         compose(applyMiddleware(...middlewareArr)));
 }
 
 
