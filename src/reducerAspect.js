@@ -17,11 +17,11 @@ const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect:
 export default createAspect({
   name: 'reducer', // to fully manage all of redux, we ONLY need the reducers (hence our name)!
   genesis,
-  expandFeatureContent,
   validateFeatureContent,
+  expandFeatureContent,
   assembleFeatureContent,
   assembleAspectResources,
-  reducerAspect_createReduxStore,
+  createReduxStore$,
   getReduxStore,
   injectRootAppElm,
 });
@@ -45,11 +45,37 @@ export default createAspect({
 function genesis() {
   logf('genesis() registering two new Aspect properties: getReduxStore() -and- getReduxMiddleware()');
 
-  extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
+  extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this is for reducerAspect only (if the API ever supports this)
   extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
 
-  extendAspectProperty('reducerAspect_createReduxStore'); // Aspect.reducerAspect_createReduxStore(appReducer, middlewareArr): appStore
-                                                          // ... AI: technically this if for reducerAspect only (if the API ever supports this)
+  extendAspectProperty('createReduxStore$');  // Aspect.createReduxStore$(appReducer, middlewareArr): appStore
+                                              // ... AI: technically this is for reducerAspect only (if the API ever supports this)
+}
+
+
+/**
+ * Validate self's aspect content on supplied feature.
+ *
+ * NOTE: To better understand the context in which any returned
+ *       validation messages are used, **feature-u** will prefix them
+ *       with: 'createFeature() parameter violation: '
+ *
+ * @param {Feature} feature - the feature to validate, which is known
+ * to contain this aspect.
+ *
+ * @return {string} an error message when the supplied feature
+ * contains invalid content for this aspect (null when valid).
+ *
+ * @private
+ */
+function validateFeatureContent(feature) {
+  const content = feature[this.name];
+  return isFunction(content)
+       ? ( content.slice
+         ? null
+         : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`
+       )
+       : `${this.name} (when supplied) must be a function`;
 }
 
 
@@ -92,32 +118,6 @@ function expandFeatureContent(app, feature) {
   slicedReducer(slice, feature[this.name]);
 
   logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer managedExpansion()`);
-}
-
-
-/**
- * Validate self's aspect content on supplied feature.
- *
- * NOTE: To better understand the context in which any returned
- *       validation messages are used, **feature-u** will prefix them
- *       with: 'createFeature() parameter violation: '
- *
- * @param {Feature} feature - the feature to validate, which is known
- * to contain this aspect.
- *
- * @return {string} an error message when the supplied feature
- * contains invalid content for this aspect (null when valid).
- *
- * @private
- */
-function validateFeatureContent(feature) {
-  const content = feature[this.name];
-  return isFunction(content)
-           ? ( content.slice
-                 ? null
-                 : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`
-             )
-           : `${this.name} (when supplied) must be a function`;
 }
 
 /**
@@ -166,8 +166,17 @@ function assembleAspectResources(app, aspects) {
   const hookSummary = [];
   const middleware = aspects.reduce( (accum, aspect) => {
     if (aspect.getReduxMiddleware) {
-      hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
-      accum.push( aspect.getReduxMiddleware() );
+      const reduxMiddleware = aspect.getReduxMiddleware();
+      if (reduxMiddleware) {
+        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
+        accum.push( reduxMiddleware );
+      }
+      else {
+        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware() ... HOWEVER returned null`);
+      }
+    }
+    else {
+      hookSummary.push(`\n  Aspect.name:${aspect.name}`);
     }
     return accum;
   }, []);
@@ -176,7 +185,7 @@ function assembleAspectResources(app, aspects) {
   // create our redux store (retained in self for subsequent usage)
   // ... accomplished in internal micro method (a defensive measure to allow easier overriding by client)
   logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
-  this.appStore = this.reducerAspect_createReduxStore(this.appReducer, middleware);
+  this.appStore = this.createReduxStore$(this.appReducer, middleware);
 }
 
 
@@ -198,7 +207,7 @@ function assembleAspectResources(app, aspects) {
  *
  * @private
  */
-function reducerAspect_createReduxStore(appReducer, middlewareArr) {
+function createReduxStore$(appReducer, middlewareArr) {
   // define our Redux app-wide store WITH optional middleware regsistration
   return  middlewareArr.length === 0
            ? createStore(appReducer)
@@ -324,7 +333,7 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
   // convert our "shaped" genesis structure into a single top-level app reducer function
   const appHasNoState = Object.keys(shapedGenesis).length === 0;
   if (appHasNoState) { // TODO: NO-REDUCERS - should this be an error?
-    logf.force(`***WARNING WARNING WARNING*** NO Feature.reducer AspectContent was found!
+    logf.force(`***WARNING WARNING WARNING*** NO Feature.${aspectName} AspectContent was found!
 An identity appReducerFn is being used.
 Subsequent releases may THROW an Exception
 ... if your using reducerAspect WHY would you not have reducers?`);

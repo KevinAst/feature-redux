@@ -2,6 +2,7 @@ import React            from 'react';
 import {createFeature,
         managedExpansion,
         launchApp}      from 'feature-u';
+import createAspect$    from './createAspect$';
 import {reducerAspect,
         slicedReducer}  from '..'; // modules under test
 
@@ -16,6 +17,46 @@ describe('reducerAspect() tests', () => {
     });
 
   });
+
+
+  describe('insure assembleAspectResources() middleware accumulation handles all 3 scenarios', () => {
+
+    const aspects = [ // here are the 3 scenarios
+      createAspect$({
+        name: 'aspectWithNoMiddleware',
+      }),
+      createAspect$({
+        name: 'aspectWithNullMiddleware',
+        getReduxMiddleware: () => null,
+      }),
+      createAspect$({
+        name: 'aspectWithMiddleware',
+        getReduxMiddleware: () => 'simulated midleware',
+      }),
+    ];
+
+    let original_createReduxStore$ = null;
+    beforeEach(() => {
+      original_createReduxStore$ = reducerAspect.createReduxStore$;
+      reducerAspect.createReduxStore$ = function(appReducer, middlewareArr) {
+        // simulate createStore ... just pass back the middlewareArr to be tested
+        return middlewareArr;
+      };
+      launchApp.diag.logf.enable(); // excercise logs (to insure there is NO coding bugs)
+    });      
+    afterEach(() => {
+      // reset everything back to original
+      reducerAspect.createReduxStore$ = original_createReduxStore$;
+      launchApp.diag.logf.disable();
+    });
+
+    test('perform the test', () => {
+      reducerAspect.assembleAspectResources('simulated app', aspects);
+      expect(reducerAspect.appStore)
+        .toEqual(['simulated midleware']);
+    });
+  });
+
 
   describe('full-blown redux test configured with reducerAspect', () => {
 
