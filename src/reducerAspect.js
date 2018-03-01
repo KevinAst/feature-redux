@@ -48,6 +48,8 @@ function genesis() {
   extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this is for reducerAspect only (if the API ever supports this)
   extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
 
+  extendAspectProperty('allowNoReducers$');   // Aspect.allowNoReducers$: true || [{reducerFn}]
+                                              // ... AI: technically this is for reducerAspect only (if the API ever supports this)
   extendAspectProperty('createReduxStore$');  // Aspect.createReduxStore$(appReducer, middlewareArr): appStore
                                               // ... AI: technically this is for reducerAspect only (if the API ever supports this)
 }
@@ -134,14 +136,8 @@ function expandFeatureContent(app, feature) {
 function assembleFeatureContent(app, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
-  const appReducer = accumAppReducer(this.name, activeFeatures);
-  // NOTE: logf() is in accumAppReducer() surrogate
-
-  // TODO: NO-REDUCERS: Currently if NO Feature.reducer AspectContent is found, 
-  //       we are returning an identity function AND log a WARNING.
-  //       - This happens in accumAppReducer() ... see: NO-REDUCERS (below)
-  //       - Should we consider this an Error?
-  //         ... throw Error (saying if your using "reducer" aspect, you need to use it)
+  // ... our logf() is in the accumAppReducer() surrogate
+  const appReducer = accumAppReducer(this.name, activeFeatures, this.allowNoReducers$);
 
   // retain for subsequent usage
   this.appReducer = appReducer;
@@ -265,9 +261,12 @@ function injectRootAppElm(app, curRootAppElm) {
  * @param {Feature[]} activeFeatures the "active" features that
  * comprise this application.
  *
+ * @param {boolean/function} allowNoReducers$ the 
+ * reducerAspect.allowNoReducers$ in effect.
+ *
  * @return {appReducerFn} a top-level app reducer function.
  */
-export function accumAppReducer(aspectName, activeFeatures) { // ... named export ONLY used in testing
+export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=null) { // ... named export ONLY used in testing
 
   // iterated over all activeFeatures,
   // ... generating the "shaped" genesis structure
@@ -330,20 +329,38 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
     }
   }
 
-  // convert our "shaped" genesis structure into a single top-level app reducer function
+  // handle scenario where NO reducers were specified in our set of Features
+  // ... when shapedGenesis == {}
   const appHasNoState = Object.keys(shapedGenesis).length === 0;
-  if (appHasNoState) { // TODO: NO-REDUCERS - should this be an error?
-    logf.force(`***WARNING WARNING WARNING*** NO Feature.${aspectName} AspectContent was found!
-An identity appReducerFn is being used.
-Subsequent releases may THROW an Exception
-... if your using reducerAspect WHY would you not have reducers?`);
+  if (appHasNoState) {
+    
+    // by default, this is an error condition (when NOT overridden by client)
+    if (!allowNoReducers$ ) {
+      throw new Error('***ERROR*** feature-redux found NO reducers within your features ' +
+                      `... did you forget to register Feature.${aspectName} aspects in your features? ` +
+                      '(please refer to the feature-redux docs to see how to override this behavior).');
+    }
+
+    // when client override is a function, interpret it as an app-wide reducer
+    else if(isFunction(allowNoReducers$)) {
+      logf.force('WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ' +
+                 'but client override (reducerAspect.allowNoReducers$=reducerFn;) ' +
+                 'directed a continuation WITH the specified reducer.');
+      return allowNoReducers$; // use supplied reducer
+    }
+
+    // otherwise we simply use an identity reducer
+    else {
+      logf.force('WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ' +
+                 'but client override (reducerAspect.allowNoReducers$=true;) ' +
+                 'directed a continuation WITH the identity reducer.');
+      return (state) => state; // use identity reducer
+    }
   }
-  else {
-    logf(`assembleFeatureContent() the overal appState shape is: `, shapedGenesis);
-  }
-  const appReducer    = appHasNoState
-                          ? (s) => s // identity reducer (for no state) TODO: NO-REDUCERS: should this be an error? ... shapedGenesis IS: {}
-                          : accumReducer(shapedGenesis);
+
+  // convert our "shaped" genesis structure into a single top-level app reducer function
+  logf(`assembleFeatureContent() the overal appState shape is: `, shapedGenesis);
+  const appReducer = accumReducer(shapedGenesis);
   return appReducer;
 }
 
