@@ -19,6 +19,19 @@ describe('reducerAspect() tests', () => {
   });
 
 
+  describe('verify reducerAspect.getReduxStore() can only be called after a successful launchApp()', () => {
+
+    expect(reducerAspect.appStore)
+      .toBe(undefined);
+
+    // NOTE: don't undersand this ... for some reason adding test to the process causes it NOT to throw
+    expect( () => reducerAspect.getReduxStore() )
+      .toThrow(/reducerAspect.getReduxStore.*can only be called after a successful launchApp/);
+    // THROW: ***ERROR*** feature-redux reducerAspect.getReduxStore() can only be called after a successful launchApp() execution
+
+  });
+
+
   describe('insure assembleAspectResources() middleware accumulation handles all 3 scenarios', () => {
 
     const aspects = [ // here are the 3 scenarios

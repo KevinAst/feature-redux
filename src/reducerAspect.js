@@ -213,8 +213,13 @@ function createReduxStore$(appReducer, middlewareArr) {
 /**
  * Promote our redux store (for good measure), just in case some 
  * external process needs it.
+ *
+ *@throws {Error} when getReduxStore() called before launchApp()
  */
 function getReduxStore() {
+  if ( ! this.appStore ) {
+    throw new Error(`***ERROR*** feature-redux reducerAspect.getReduxStore() can only be called after a successful launchApp() execution`);
+  }
   return this.appStore;
 }
 
@@ -313,7 +318,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
         // 1: intermediate node cannot be a reducer, because we can't intermix feature reducer with combineReducer (of launchApp)
         // 2: all leafs MUST be reducer functions (this is actually FORCED by our code below)
         if ( isFunction(subNode) || (subNodeExisted && leafNode) ) { // TO BE ORDER INDEPENDENT, added: or condition
-          throw new Error(`*** ERROR*** feature-redux constraint violation: reducer slice: '${runningShape}' cannot be specified by multiple features (either as an intermediate node, or an outright duplicate) because we can't intermix feature reducers and combineReducer() from launchApp()`);
+          throw new Error(`***ERROR*** feature-redux constraint violation: reducer slice: '${runningShape}' cannot be specified by multiple features (either as an intermediate node, or an outright duplicate) because we can't intermix feature reducers and combineReducer() from launchApp()`);
         }
 
         // inject our new sub-node -or- the reducer for leaf nodes
