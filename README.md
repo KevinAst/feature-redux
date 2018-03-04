@@ -527,7 +527,7 @@ using redux?_
 You can change this behavior through the following configuration:
 
 ```js
-reducerAspect.allowNoReducers$ = true;
+reducerAspect.config.allowNoReducers$ = true;
 ```
 
 With this option enabled, when no reducers are found, redux will be

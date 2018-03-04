@@ -37,8 +37,8 @@ describe('reducerAspect() tests', () => {
 
     let original_createReduxStore$ = null;
     beforeEach(() => {
-      original_createReduxStore$ = reducerAspect.createReduxStore$;
-      reducerAspect.createReduxStore$ = function(appReducer, middlewareArr) {
+      original_createReduxStore$ = reducerAspect.config.createReduxStore$;
+      reducerAspect.config.createReduxStore$ = function(appReducer, middlewareArr) {
         // simulate createStore ... just pass back the middlewareArr to be tested
         return middlewareArr;
       };
@@ -46,7 +46,7 @@ describe('reducerAspect() tests', () => {
     });      
     afterEach(() => {
       // reset everything back to original
-      reducerAspect.createReduxStore$ = original_createReduxStore$;
+      reducerAspect.config.createReduxStore$ = original_createReduxStore$;
       launchApp.diag.logf.disable();
     });
 

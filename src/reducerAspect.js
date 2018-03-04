@@ -21,9 +21,12 @@ export default createAspect({
   expandFeatureContent,
   assembleFeatureContent,
   assembleAspectResources,
-  createReduxStore$,
   getReduxStore,
   injectRootAppElm,
+  config: {
+    allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
+    createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
+  },
 });
 
 
@@ -47,11 +50,6 @@ function genesis() {
 
   extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this is for reducerAspect only (if the API ever supports this)
   extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
-
-  extendAspectProperty('allowNoReducers$');   // Aspect.allowNoReducers$: true || [{reducerFn}]
-                                              // ... AI: technically this is for reducerAspect only (if the API ever supports this)
-  extendAspectProperty('createReduxStore$');  // Aspect.createReduxStore$(appReducer, middlewareArr): appStore
-                                              // ... AI: technically this is for reducerAspect only (if the API ever supports this)
 }
 
 
@@ -137,7 +135,7 @@ function assembleFeatureContent(app, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
   // ... our logf() is in the accumAppReducer() surrogate
-  const appReducer = accumAppReducer(this.name, activeFeatures, this.allowNoReducers$);
+  const appReducer = accumAppReducer(this.name, activeFeatures, this.config.allowNoReducers$);
 
   // retain for subsequent usage
   this.appReducer = appReducer;
@@ -179,15 +177,15 @@ function assembleAspectResources(app, aspects) {
   logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
 
   // create our redux store (retained in self for subsequent usage)
-  // ... accomplished in internal micro method (a defensive measure to allow easier overriding by client)
+  // ... accomplished in internal config micro function (a defensive measure to allow easier overriding by client)
   logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
-  this.appStore = this.createReduxStore$(this.appReducer, middleware);
+  this.appStore = this.config.createReduxStore$(this.appReducer, middleware);
 }
 
 
 /**
- * An internal micro method that creates/returns the redux app store
- * WITH optional middleware regsistration.
+ * An internal config micro function that creates/returns the redux
+ * app store WITH optional middleware regsistration.
  *
  * This logic is broken out in this internal method as a defensive
  * measure to make it easier for a client to override (if needed for
@@ -215,8 +213,6 @@ function createReduxStore$(appReducer, middlewareArr) {
 /**
  * Promote our redux store (for good measure), just in case some 
  * external process needs it.
- *
- * @private
  */
 function getReduxStore() {
   return this.appStore;
@@ -262,7 +258,7 @@ function injectRootAppElm(app, curRootAppElm) {
  * comprise this application.
  *
  * @param {boolean/function} allowNoReducers$ the 
- * reducerAspect.allowNoReducers$ in effect.
+ * reducerAspect.config.allowNoReducers$ in effect.
  *
  * @return {appReducerFn} a top-level app reducer function.
  */
@@ -344,7 +340,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
     // when client override is a function, interpret it as an app-wide reducer
     else if(isFunction(allowNoReducers$)) {
       logf.force('WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ' +
-                 'but client override (reducerAspect.allowNoReducers$=reducerFn;) ' +
+                 'but client override (reducerAspect.config.allowNoReducers$=reducerFn;) ' +
                  'directed a continuation WITH the specified reducer.');
       return allowNoReducers$; // use supplied reducer
     }
@@ -352,7 +348,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
     // otherwise we simply use an identity reducer
     else {
       logf.force('WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ' +
-                 'but client override (reducerAspect.allowNoReducers$=true;) ' +
+                 'but client override (reducerAspect.config.allowNoReducers$=truthy;) ' +
                  'directed a continuation WITH the identity reducer.');
       return (state) => state; // use identity reducer
     }

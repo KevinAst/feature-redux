@@ -55,8 +55,8 @@ describe('feature-u accumAppReducer() tests', () => {
       });
   });
 
-  test.skip('simple merge PROVING OVERRIDE allowNoReducers$=myReducerFn IS NOT USED (when Feature.reducer are found', () => {
-    expect(applyAppState([feature1, feature2], ()=>'NOT Expecting This Reducer To Be USEd'))
+  test('simple merge PROVING OVERRIDE allowNoReducers$=myReducerFn IS NOT USED (when Feature.reducer are found', () => {
+    expect(applyAppState([feature1, feature2], ()=>'NOT Expecting This Reducer To Be USED'))
       .toEqual({
         feature1: 'state-for-feature1',
         feature2: 'state-for-feature2',
