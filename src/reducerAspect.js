@@ -48,8 +48,8 @@ export default createAspect({
 function genesis() {
   logf('genesis() registering two new Aspect properties: getReduxStore() -and- getReduxMiddleware()');
 
-  extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this is for reducerAspect only (if the API ever supports this)
-  extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
+  extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
+  extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
 }
 
 
