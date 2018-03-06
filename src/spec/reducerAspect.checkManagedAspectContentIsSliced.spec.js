@@ -3,11 +3,9 @@ import {createFeature,
         launchApp}      from 'feature-u';
 import {reducerAspect}  from '..'; // modules under test
 
-// NOTE: Because of the way extended Aspect properties are managed (in
-//       global module space) we can only invoke ONE launchApp() per unit
-//       test module.
-//       ... that is why this test is isolated here
-//       ... BECAUSE: reducerAspect invokes feature-u's: extendAspectProperty('getReduxStore')
+// NOTE: This test is broken out into a separate module to clear
+//       any residual reducerAspect state as a result of invoking
+//       launchApp() on it!
 describe('checkManagedAspectContentIsSliced', () => {
 
   const nonSlicedReducer = (state=null, action) => 'nonSlicedReducer';

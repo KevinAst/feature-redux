@@ -7,10 +7,10 @@ import {accumAppReducer}  from '../reducerAspect'; // function under test (see: 
 
 const anyAction = {type: 'any'};
 
-function applyAppState(features) {
+function applyAppState(features, allowNoReducers$=null) {
   // accumulate our top-level app state reducer
   // ... function under test
-  const appReducerFn = accumAppReducer('reducer', features);
+  const appReducerFn = accumAppReducer('reducer', features, allowNoReducers$);
 
   // return the appState from running the reducer
   const appState = appReducerFn(undefined, anyAction);
@@ -54,6 +54,14 @@ describe('feature-u accumAppReducer() tests', () => {
         feature2: 'state-for-feature2',
       });
   });
+
+  test('simple merge PROVING OVERRIDE allowNoReducers$=myReducerFn IS NOT USED (when Feature.reducer are found', () => {
+    expect(applyAppState([feature1, feature2], ()=>'NOT Expecting This Reducer To Be USED'))
+      .toEqual({
+        feature1: 'state-for-feature1',
+        feature2: 'state-for-feature2',
+      });
+  });
   
   test('merge complex slices', () => {
     expect(applyAppState([feature1, feature3]))
@@ -76,8 +84,19 @@ describe('feature-u accumAppReducer() tests', () => {
   });
   
   test('NO state in all features', () => {
-    expect(applyAppState([featureWithoutState]))
-      .toEqual(undefined);
+    expect(()=>applyAppState([featureWithoutState]))
+      .toThrow(/found NO reducers within your features/);
+    // throw:  ***ERROR*** feature-redux found NO reducers within your features ... did you forget to register Feature.reducer aspects in your features? (please refer to the feature-redux docs to see how to override this behavior).
+  });
+
+  test('NO state in all features OVERRIDING allowNoReducers$=true (using identity reducer)', () => {
+    expect(applyAppState([featureWithoutState], true))
+      .toBe(undefined);
+  });
+
+  test('NO state in all features OVERRIDING allowNoReducers$=myReducerFn', () => {
+    expect(applyAppState([featureWithoutState], ()=>'WowZee: I injected myReducerFn'))
+      .toBe('WowZee: I injected myReducerFn');
   });
   
   test('Error detected for duplicate slices', () => {
@@ -148,10 +167,9 @@ describe('feature-u accumAppReducer() tests', () => {
   });
 
   test('Test NO feature reducers', () => {
-
-    expect(applyAppState([])) // NO-REDUCERS: currently uses an identity appReducerFn AND logs a forced WARNING.
-      .toBe(undefined);
-
+    expect(()=>applyAppState([]))
+      .toThrow(/found NO reducers within your features/);
+    // throw:  ***ERROR*** feature-redux found NO reducers within your features ... did you forget to register Feature.reducer aspects in your features? (please refer to the feature-redux docs to see how to override this behavior).
   });
 
 });

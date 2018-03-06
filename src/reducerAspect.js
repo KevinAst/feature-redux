@@ -11,18 +11,22 @@ import slicedReducer           from './slicedReducer';
 import isFunction              from 'lodash.isfunction';
 
 // our logger (integrated/activated via feature-u)
-const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** ');
+const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect: ');
 
 // NOTE: See README for complete description
 export default createAspect({
   name: 'reducer', // to fully manage all of redux, we ONLY need the reducers (hence our name)!
   genesis,
-  expandFeatureContent,
   validateFeatureContent,
+  expandFeatureContent,
   assembleFeatureContent,
   assembleAspectResources,
   getReduxStore,
   injectRootAppElm,
+  config: {
+    allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
+    createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
+  },
 });
 
 
@@ -42,8 +46,36 @@ export default createAspect({
  * @private
  */
 function genesis() {
-  extendAspectProperty('getReduxStore');      // Aspect.getReduxStore(): store ... AI: technically this if for reducerAspect only (if the API ever supports this)
-  extendAspectProperty('getReduxMiddleware'); // Aspect.getReduxMiddleware(): reduxMiddleware
+  logf('genesis() registering two new Aspect properties: getReduxStore() -and- getReduxMiddleware()');
+
+  extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
+  extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
+}
+
+
+/**
+ * Validate self's aspect content on supplied feature.
+ *
+ * NOTE: To better understand the context in which any returned
+ *       validation messages are used, **feature-u** will prefix them
+ *       with: 'createFeature() parameter violation: '
+ *
+ * @param {Feature} feature - the feature to validate, which is known
+ * to contain this aspect.
+ *
+ * @return {string} an error message when the supplied feature
+ * contains invalid content for this aspect (null when valid).
+ *
+ * @private
+ */
+function validateFeatureContent(feature) {
+  const content = feature[this.name];
+  return isFunction(content)
+       ? ( content.slice
+         ? null
+         : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`
+       )
+       : `${this.name} (when supplied) must be a function`;
 }
 
 
@@ -84,32 +116,8 @@ function expandFeatureContent(app, feature) {
   // apply same slice to our final resolved reducer
   // ... so it is accessable to our internals (i.e. launchApp)
   slicedReducer(slice, feature[this.name]);
-}
 
-
-/**
- * Validate self's aspect content on supplied feature.
- *
- * NOTE: To better understand the context in which any returned
- *       validation messages are used, **feature-u** will prefix them
- *       with: 'createFeature() parameter violation: '
- *
- * @param {Feature} feature - the feature to validate, which is known
- * to contain this aspect.
- *
- * @return {string} an error message when the supplied feature
- * contains invalid content for this aspect (null when valid).
- *
- * @private
- */
-function validateFeatureContent(feature) {
-  const content = feature[this.name];
-  return isFunction(content)
-           ? ( content.slice
-                 ? null
-                 : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`
-             )
-           : `${this.name} (when supplied) must be a function`;
+  logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer managedExpansion()`);
 }
 
 /**
@@ -126,13 +134,8 @@ function validateFeatureContent(feature) {
 function assembleFeatureContent(app, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
-  const appReducer = accumAppReducer(this.name, activeFeatures);
-
-  // TODO: NO-REDUCERS: Currently if NO Feature.reducer AspectContent is found, 
-  //       we are returning an identity function AND log a WARNING.
-  //       - This happens in accumAppReducer() ... see: NO-REDUCERS (below)
-  //       - Should we consider this an Error?
-  //         ... throw Error (saying if your using "reducer" aspect, you need to use it)
+  // ... our logf() is in the accumAppReducer() surrogate
+  const appReducer = accumAppReducer(this.name, activeFeatures, this.config.allowNoReducers$);
 
   // retain for subsequent usage
   this.appReducer = appReducer;
@@ -154,21 +157,56 @@ function assembleFeatureContent(app, activeFeatures) {
 function assembleAspectResources(app, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
+  const hookSummary = [];
   const middleware = aspects.reduce( (accum, aspect) => {
     if (aspect.getReduxMiddleware) {
-      accum.push( aspect.getReduxMiddleware() );
+      const reduxMiddleware = aspect.getReduxMiddleware();
+      if (reduxMiddleware) {
+        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
+        accum.push( reduxMiddleware );
+      }
+      else {
+        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware() ... HOWEVER returned null`);
+      }
+    }
+    else {
+      hookSummary.push(`\n  Aspect.name:${aspect.name}`);
     }
     return accum;
   }, []);
+  logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
 
-  // define our Redux app-wide store WITH optional middleware registration
-  const appStore = middleware.length === 0
-                    ? createStore(this.appReducer)
-                    : createStore(this.appReducer,
-                                  compose(applyMiddleware(...middleware)));
+  // create our redux store (retained in self for subsequent usage)
+  // ... accomplished in internal config micro function (a defensive measure to allow easier overriding by client)
+  logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
+  this.appStore = this.config.createReduxStore$(this.appReducer, middleware);
+}
 
-  // retain for subsequent usage
-  this.appStore = appStore;
+
+/**
+ * An internal config micro function that creates/returns the redux
+ * app store WITH optional middleware regsistration.
+ *
+ * This logic is broken out in this internal method as a defensive
+ * measure to make it easier for a client to override (if needed for
+ * some unknown reason).
+ *
+ * @param {reducerFn} the top-level app reducer function.
+ *
+ * @param {reduxMiddleware[]} middlewareArr - the optional set of
+ * reduxMiddleware items to register to redux (zero length array if
+ * none).
+ *
+ * @return {reduxAppStore} the newly created redux app store.
+ *
+ * @private
+ */
+function createReduxStore$(appReducer, middlewareArr) {
+  // define our Redux app-wide store WITH optional middleware regsistration
+  return  middlewareArr.length === 0
+           ? createStore(appReducer)
+           : createStore(appReducer,
+                         compose(applyMiddleware(...middlewareArr)));
 }
 
 
@@ -176,9 +214,12 @@ function assembleAspectResources(app, aspects) {
  * Promote our redux store (for good measure), just in case some 
  * external process needs it.
  *
- * @private
+ *@throws {Error} when getReduxStore() called before launchApp()
  */
 function getReduxStore() {
+  if ( ! this.appStore ) {
+    throw new Error(`***ERROR*** feature-redux reducerAspect.getReduxStore() can only be called after a successful launchApp() execution`);
+  }
   return this.appStore;
 }
 
@@ -199,6 +240,7 @@ function getReduxStore() {
  * @private
  */
 function injectRootAppElm(app, curRootAppElm) {
+  logf(`injectRootAppElm() introducing redux <Provider> component into rootAppElm`);
   return (
     <Provider store={this.appStore}>
       {curRootAppElm}
@@ -220,9 +262,12 @@ function injectRootAppElm(app, curRootAppElm) {
  * @param {Feature[]} activeFeatures the "active" features that
  * comprise this application.
  *
+ * @param {boolean/function} allowNoReducers$ the 
+ * reducerAspect.config.allowNoReducers$ in effect.
+ *
  * @return {appReducerFn} a top-level app reducer function.
  */
-export function accumAppReducer(aspectName, activeFeatures) { // ... named export ONLY used in testing
+export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=null) { // ... named export ONLY used in testing
 
   // iterated over all activeFeatures,
   // ... generating the "shaped" genesis structure
@@ -273,7 +318,7 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
         // 1: intermediate node cannot be a reducer, because we can't intermix feature reducer with combineReducer (of launchApp)
         // 2: all leafs MUST be reducer functions (this is actually FORCED by our code below)
         if ( isFunction(subNode) || (subNodeExisted && leafNode) ) { // TO BE ORDER INDEPENDENT, added: or condition
-          throw new Error(`*** ERROR*** feature-redux constraint violation: reducer slice: '${runningShape}' cannot be specified by multiple features (either as an intermediate node, or an outright duplicate) because we can't intermix feature reducers and combineReducer() from launchApp()`);
+          throw new Error(`***ERROR*** feature-redux constraint violation: reducer slice: '${runningShape}' cannot be specified by multiple features (either as an intermediate node, or an outright duplicate) because we can't intermix feature reducers and combineReducer() from launchApp()`);
         }
 
         // inject our new sub-node -or- the reducer for leaf nodes
@@ -285,17 +330,38 @@ export function accumAppReducer(aspectName, activeFeatures) { // ... named expor
     }
   }
 
-  // convert our "shaped" genesis structure into a single top-level app reducer function
+  // handle scenario where NO reducers were specified in our set of Features
+  // ... when shapedGenesis == {}
   const appHasNoState = Object.keys(shapedGenesis).length === 0;
-  if (appHasNoState) { // TODO: NO-REDUCERS - should this be an error?
-    logf.force(`***WARNING WARNING WARNING*** NO Feature.reducer AspectContent was found!
-An identity appReducerFn is being used.
-Subsequent releases may THROW an Exception
-... if your using reducerAspect WHY would you not have reducers?`);
+  if (appHasNoState) {
+    
+    // by default, this is an error condition (when NOT overridden by client)
+    if (!allowNoReducers$ ) {
+      throw new Error('***ERROR*** feature-redux found NO reducers within your features ' +
+                      `... did you forget to register Feature.${aspectName} aspects in your features? ` +
+                      '(please refer to the feature-redux docs to see how to override this behavior).');
+    }
+
+    // when client override is a function, interpret it as an app-wide reducer
+    else if(isFunction(allowNoReducers$)) {
+      logf.force(`WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ` +
+                 'but client override (reducerAspect.config.allowNoReducers$=reducerFn;) ' +
+                 'directed a continuation WITH the specified reducer.');
+      return allowNoReducers$; // use supplied reducer
+    }
+
+    // otherwise we simply use an identity reducer
+    else {
+      logf.force(`WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ` +
+                 'but client override (reducerAspect.config.allowNoReducers$=truthy;) ' +
+                 'directed a continuation WITH the identity reducer.');
+      return (state) => state; // use identity reducer
+    }
   }
-  const appReducer    = appHasNoState
-                          ? (s) => s // identity reducer (for no state) TODO: NO-REDUCERS: should this be an error? ... shapedGenesis IS: {}
-                          : accumReducer(shapedGenesis);
+
+  // convert our "shaped" genesis structure into a single top-level app reducer function
+  logf(`assembleFeatureContent() the overal appState shape is: `, shapedGenesis);
+  const appReducer = accumReducer(shapedGenesis);
   return appReducer;
 }
 

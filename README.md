@@ -19,16 +19,11 @@ run-time stack.
 
 
 <!--- Badges for CI Builds ---> 
+[![Build Status](https://travis-ci.org/KevinAst/feature-redux.svg?branch=master)](https://travis-ci.org/KevinAst/feature-redux)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9c93a52aa6b6484ebd382ac976176836)](https://www.codacy.com/app/KevinAst/feature-redux?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KevinAst/feature-redux&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/9c93a52aa6b6484ebd382ac976176836)](https://www.codacy.com/app/KevinAst/feature-redux?utm_source=github.com&utm_medium=referral&utm_content=KevinAst/feature-redux&utm_campaign=Badge_Coverage)
 [![Known Vulnerabilities](https://snyk.io/test/github/kevinast/feature-redux/badge.svg?targetFile=package.json)](https://snyk.io/test/github/kevinast/feature-redux?targetFile=package.json)
 [![NPM Version Badge](https://img.shields.io/npm/v/feature-redux.svg)](https://www.npmjs.com/package/feature-redux)
-<!--- TODO Badges
-- CI Build: ?? WHEN CI Build In place
-- GRADE:    DONE (see above)
-- CODE COV: ?? WHEN Code coverage in place
-- Vulnerab: DONE (see above)
-- NPM:      DONE (see above)
----> 
 
 
 **Overview:**
@@ -79,6 +74,7 @@ Let's see how this all works together ...
 - [Interface Points](#interface-points)
   - [Inputs](#inputs)
   - [Exposure](#exposure)
+  - [Error Conditions](#error-conditions)
 - [API](#api)
   - [`reducerAspect: Aspect`](#reduceraspect-aspect)
   - [`slicedReducer(slice, reducer): reducerFn`](#slicedreducer)
@@ -503,6 +499,38 @@ this process (_i.e. the inputs and outputs_) are documented here.
    For good measure, **feature-redux** promotes the [redux store]
    through the `Aspect.getReduxStore()` method.  This provides direct
    access to the [store] to any external process that needs it.
+
+
+### Error Conditions
+
+When **feature-redux** detects that no reducers have been
+specified by any of your features, it will (by default) throw the
+following exception:
+
+```
+***ERROR*** feature-redux found NO reducers within your features
+            ... did you forget to register Feature.reducer aspects in your features?
+            (please refer to the feature-redux docs to see how to override this behavior).
+```
+
+Most likely this should in fact be considered an error _(for example
+you neglected to specify the reducer aspects within your features)_.
+**The reasoning is**: _why would you not specify any reducers if your
+using redux?_
+
+You can change this behavior through the following configuration:
+
+```js
+reducerAspect.config.allowNoReducers$ = true;
+```
+
+With this option enabled, when no reducers are found, redux will be
+configured with an identity reducer (accompanied with a WARNING
+logging probe).
+
+You can also specify your own reducer function in place of the `true`
+value, which will be used ONLY in the scenario where no reducers were
+specified by your features.
 
 
 ## API
