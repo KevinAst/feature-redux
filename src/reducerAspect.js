@@ -344,7 +344,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
 
     // when client override is a function, interpret it as an app-wide reducer
     else if(isFunction(allowNoReducers$)) {
-      logf.force('WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ' +
+      logf.force(`WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ` +
                  'but client override (reducerAspect.config.allowNoReducers$=reducerFn;) ' +
                  'directed a continuation WITH the specified reducer.');
       return allowNoReducers$; // use supplied reducer
@@ -352,7 +352,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
 
     // otherwise we simply use an identity reducer
     else {
-      logf.force('WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ' +
+      logf.force(`WARNING: NO reducers were found in your features (i.e. Feature.${aspectName}), ` +
                  'but client override (reducerAspect.config.allowNoReducers$=truthy;) ' +
                  'directed a continuation WITH the identity reducer.');
       return (state) => state; // use identity reducer
