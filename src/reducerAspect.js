@@ -290,7 +290,15 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
   //           }
   //         }
   const shapedGenesis = {};
-  for (const feature of activeFeatures) {
+
+  // using old style es5 "for loop" in lieu of es6 "for of"
+  // ... issue in react-native android JS engine:
+  //     ERROR: missing Symbol.iterator: '@@iterator'
+  // ... may be related to android JS engine -or- stale babel transpiler
+  // ... for now, using es5 "for loop" is path of least resistance
+//for (const feature of activeFeatures) {
+  for (let i=0; i<activeFeatures.length; i++) {
+    const feature = activeFeatures[i];
 
     // only interpret features that define our aspect
     if (feature[aspectName]) {
