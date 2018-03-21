@@ -202,11 +202,22 @@ function assembleAspectResources(app, aspects) {
  * @private
  */
 function createReduxStore$(appReducer, middlewareArr) {
+
+  // redux-devtools related (rdt)
+  // NOTE: it is OK to use rdt in production: 
+  //       https://medium.com/@zalmoxis/using-redux-devtools-in-production-4c5b56c5600f
+  const win          = window || {}; // no-op in non-browser env (i.e. react-native)
+  const rdtExtension = win.__REDUX_DEVTOOLS_EXTENSION__;
+  const enhancer$    = rdtExtension && rdtExtension();
+  const compose$     = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  if (rdtExtension) {
+    logf.force('createReduxStore$() found/using Redux DevTools');
+  }
+
   // define our Redux app-wide store WITH optional middleware regsistration
   return  middlewareArr.length === 0
-           ? createStore(appReducer)
-           : createStore(appReducer,
-                         compose(applyMiddleware(...middlewareArr)));
+           ? createStore(appReducer, enhancer$) // NOTE: passing enhancer as last argument requires redux@>=3.1.0
+           : createStore(appReducer, compose$(applyMiddleware(...middlewareArr)));
 }
 
 
