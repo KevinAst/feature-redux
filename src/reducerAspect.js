@@ -26,6 +26,7 @@ export default createAspect({
   config: {
     allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
     createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
+    reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
   },
 });
 
@@ -202,23 +203,39 @@ function assembleAspectResources(app, aspects) {
  * @private
  */
 function createReduxStore$(appReducer, middlewareArr) {
-
-  // redux-devtools related (rdt)
-  // NOTE: it is OK to use rdt in production: 
-  //       https://medium.com/@zalmoxis/using-redux-devtools-in-production-4c5b56c5600f
-  const win          = window || {}; // no-op in non-browser env (i.e. react-native)
-  const rdtExtension = win.__REDUX_DEVTOOLS_EXTENSION__;
-  const enhancer$    = rdtExtension && rdtExtension();
-  const compose$     = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-  if (rdtExtension) {
-    logf.force('createReduxStore$() found/using Redux DevTools');
-  }
+  // auto configure Redux DevTools (when detected)
+  const {enhancer$, compose$} = this.reduxDevToolHook$();
 
   // define our Redux app-wide store WITH optional middleware regsistration
   return  middlewareArr.length === 0
            ? createStore(appReducer, enhancer$) // NOTE: passing enhancer as last argument requires redux@>=3.1.0
            : createStore(appReducer, compose$(applyMiddleware(...middlewareArr)));
 }
+
+
+/**
+ * Auto detect Redux Dev Tools when installed in browser.
+ *
+ * NOTE: It's OK to use Redux Dev Tools in production: http://bit.ly/rdtOkForProd
+ *
+ * @return  {enhancer$, compose$} to be used in creating redux store.
+ *
+ * @private
+ */
+function reduxDevToolHook$() {
+  const win       = window || {}; // no-op in non-browser env (i.e. react-native)
+  const extension = win.__REDUX_DEVTOOLS_EXTENSION__;
+  const enhancer$ = extension && extension();
+  const compose$  = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  if (extension) {
+    logf.force('createReduxStore$() hooking into  Redux DevTools (installed in your browser)');
+  }
+  else {
+    console.log(`?? TEMPORARY LOG: **NO** Redux DevTools found`);
+  }
+  return {enhancer$, compose$};
+}
+
 
 
 /**
