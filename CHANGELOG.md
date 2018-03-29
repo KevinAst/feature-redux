@@ -11,11 +11,11 @@ and **contains migration instructions**.
 
 Release  | What                                            | *When*
 ---------|-------------------------------------------------|------------------
-[v0.1.2] | Auto Redux DevTools Integration                 | *March ??, 2018*
+[v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
 [v0.1.1] | react-native android patch                      | *March 7, 2018*
 [v0.1.0] | Initial Release                                 | *March 6, 2018*
 
-[v0.1.2]: #v012---auto-redux-devtools-integration-march-??-2018
+[v0.1.2]: #v012---auto-redux-devtools-integration-march-29-2018
 [v0.1.1]: #v011---react-native-android-patch-march-7-2018
 [v0.1.0]: #v010---initial-release-march-6-2018
 
@@ -49,7 +49,7 @@ UNRELEASED *********************************************************************
 
 <!-- *** RELEASE *************************************************************** -->
 
-## v0.1.2 - Auto Redux DevTools Integration *(March ??, 2018)*
+## v0.1.2 - Auto Redux DevTools Integration *(March 29, 2018)*
 
 [GitHub Content](https://github.com/KevinAst/feature-redux/tree/v0.1.2)
 &bull;

@@ -230,9 +230,6 @@ function reduxDevToolHook$() {
   if (extension) {
     logf.force('createReduxStore$() hooking into  Redux DevTools (installed in your browser)');
   }
-  else {
-    console.log(`?? TEMPORARY LOG: **NO** Redux DevTools found`);
-  }
   return {enhancer$, compose$};
 }
 
