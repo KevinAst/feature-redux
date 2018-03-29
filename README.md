@@ -255,35 +255,25 @@ single-source-of-truth, however importing feature from your action
 modules is problematic _(the [`Feature`] object will most likely not be
 fully resolved during in-line code expansion)_.  As a result, a **best
 practice** is to import a separate `featureName` constant (*that
-simply holds the name*).  Here is an example using [action-u] (_see:
-`**3**` below_):
+simply holds the name*).  Here is an example:
 
-**src/feature/featureA/featureName.js**
+**src/feature/timer/featureName.js**
 ```js
-export default 'featureA'; // **3**
+export default 'timer';
 ```
 
-**src/feature/featureA/actions.js**
+**src/feature/timer/actions.js**
 ```js
-import {generateActions} from 'action-u';
-import featureName       from './featureName';
+import featureName  from './featureName';
 
-export default generateActions.root({
-  [featureName]: { // **3** prefix all actions with our feature name, guaranteeing uniqueness app-wide!
-    action1: {     // actions.action1(): Action
-                   actionMeta: {},
-    },
-    action2: {     // actions.action2(): Action
-                   actionMeta: {},
-    },
-    etc...
-  },
-});
+// action type constants
+export const TIMER_START  = `${featureName}.TIMER_START`;
+export const TIMER_CANCEL = `${featureName}.TIMER_CANCEL`;
+export const TIMER_RESET  = `${featureName}.TIMER_RESET`;
+export const TIMER_END    = `${featureName}.TIMER_END`;
+
+... snip snip
 ```
-
-This example results in [actions] of type:
-- `featureA.action1`
-- `featureA.action2`
 
 </ul>
 
@@ -496,9 +486,12 @@ this process (_i.e. the inputs and outputs_) are documented here.
    
 3. **Other**:
 
-   For good measure, **feature-redux** promotes the [redux store]
-   through the `Aspect.getReduxStore()` method.  This provides direct
-   access to the [store] to any external process that needs it.
+   - For good measure, **feature-redux** promotes the [redux store]
+     through the `Aspect.getReduxStore()` method.  This provides direct
+     access to the [store] to any external process that needs it.
+
+   - Integration with Redux DevTools is automatically configured (when
+     detected).
 
 
 ### Error Conditions
