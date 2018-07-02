@@ -11,10 +11,13 @@ and **contains migration instructions**.
 
 Release  | What                                            | *When*
 ---------|-------------------------------------------------|------------------
+[v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
 [v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
 [v0.1.1] | react-native android patch                      | *March 7, 2018*
 [v0.1.0] | Initial Release                                 | *March 6, 2018*
 
+
+[v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
 [v0.1.2]: #v012---auto-redux-devtools-integration-march-29-2018
 [v0.1.1]: #v011---react-native-android-patch-march-7-2018
 [v0.1.0]: #v010---initial-release-march-6-2018
@@ -43,8 +46,37 @@ RUNNING CONTENT (pop out as needed) ...
   **Enhanced**:   ... for enhancements
   **Security**:   ... in case of vulnerabilities
   **Docs**:       ... changes in documentation
+  **Review**:     ... requires review
+  **Internal**:   ... internal change NOT affecting user/client
 
 UNRELEASED ******************************************************************************** -->
+
+
+
+<!-- *** RELEASE *************************************************************** -->
+
+## v0.1.3 - Establish Polyfill Strategy *(July 2, 2018)*
+
+[GitHub Content](https://github.com/KevinAst/feature-redux/tree/v0.1.3)
+&bull;
+[GitHub Release](https://github.com/KevinAst/feature-redux/releases/tag/v0.1.3)
+&bull;
+[Diff](https://github.com/KevinAst/feature-redux/compare/v0.1.2...v0.1.3)
+
+**NOTE**: This release is a **non-breaking change** _(i.e. no API was affected)_.
+
+- **Review**: A new policy is in affect where **polyfills are the
+  responsibility of the client app**, when the target JavaScript
+  engine is inadequate _(such as the IE browser)_.  Please refer to
+  [Potential Need for
+  Polyfills](./README.md#potential-need-for-polyfills) for more
+  information.
+
+  As a result, all previous code patches related to es2015+ polyfill
+  issues were removed, in favor of **polyfilling at the app-level**.
+
+- **Internal**: The most current babel version/configuration is now
+  used to transpile the library's es5 distribution.
 
 
 <!-- *** RELEASE *************************************************************** -->
