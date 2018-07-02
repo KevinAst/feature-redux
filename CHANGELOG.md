@@ -11,14 +11,13 @@ and **contains migration instructions**.
 
 Release  | What                                            | *When*
 ---------|-------------------------------------------------|------------------
-[v0.1.3] | Establish Polyfill Strategy                     | *July ??, 2018*
+[v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
 [v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
 [v0.1.1] | react-native android patch                      | *March 7, 2018*
 [v0.1.0] | Initial Release                                 | *March 6, 2018*
 
 
-<!-- ?? change next line WHEN date is known -->
-[v0.1.3]: #v013---establish-polyfill-strategy-july--2018
+[v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
 [v0.1.2]: #v012---auto-redux-devtools-integration-march-29-2018
 [v0.1.1]: #v011---react-native-android-patch-march-7-2018
 [v0.1.0]: #v010---initial-release-march-6-2018
@@ -56,7 +55,7 @@ UNRELEASED *********************************************************************
 
 <!-- *** RELEASE *************************************************************** -->
 
-## v0.1.3 - Establish Polyfill Strategy *(July ??, 2018)*
+## v0.1.3 - Establish Polyfill Strategy *(July 2, 2018)*
 
 [GitHub Content](https://github.com/KevinAst/feature-redux/tree/v0.1.3)
 &bull;
@@ -71,7 +70,7 @@ UNRELEASED *********************************************************************
   engine is inadequate _(such as the IE browser)_.  Please refer to
   [Potential Need for
   Polyfills](./README.md#potential-need-for-polyfills) for more
-  information.  ??TODO: is this link correct (check it out on github)?
+  information.
 
   As a result, all previous code patches related to es2015+ polyfill
   issues were removed, in favor of **polyfilling at the app-level**.
