@@ -1,6 +1,6 @@
 {
   "name": "feature-redux",
-  "version": "0.1.3",
+  "version": "1.0.1",
   "description": "feature-u redux integration",
   "main": "lib/index.js",
   "browser": {
@@ -88,7 +88,7 @@
     "eslint": "^3.19.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-react": "^7.6.1",
-    "feature-u": ">=0.1.0",
+    "feature-u": ">=1.0.0",
     "jest": "^22.1.4",
     "npm-run-all": "^4.0.2",
     "react": ">=0.14.0",
@@ -102,7 +102,7 @@
     "lodash.isstring": "^4.0.1"
   },
   "peerDependencies": {
-    "feature-u": ">=0.1.0",
+    "feature-u": ">=1.0.0",
     "react": ">=0.14.0",
     "redux": ">=3.1.0",
     "react-redux": ">=1.0.0"

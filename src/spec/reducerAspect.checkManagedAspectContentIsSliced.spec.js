@@ -18,7 +18,7 @@ describe('checkManagedAspectContentIsSliced', () => {
     features: [
       createFeature({
         name:    'feature1',
-        reducer: managedExpansion( (app) => nonSlicedReducer ),
+        reducer: managedExpansion( (fassets) => nonSlicedReducer ),
       }),
     ],
     registerRootAppElm(rootAppElm) {

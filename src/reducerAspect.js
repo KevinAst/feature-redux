@@ -85,8 +85,8 @@ function validateFeatureContent(feature) {
  * the slice property from the expansion function to the expanded
  * reducer.
  *
- * @param {App} app the App object used in feature
- * cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  * 
  * @param {Feature} feature - the feature which is known to contain
  * this aspect **and** is in need of expansion (as defined by
@@ -100,7 +100,7 @@ function validateFeatureContent(feature) {
  *
  * @private
  */
-function expandFeatureContent(app, feature) {
+function expandFeatureContent(fassets, feature) {
   // hold on to our reducer slice
   // ... so as to apply it to our final resolved reducer (below)
   const slice = feature[this.name].slice;
@@ -111,8 +111,8 @@ function expandFeatureContent(app, feature) {
   }
 
   // expand self's content in the supplied feature
-  // ... by invoking the managedExpansionCB(app) embellished by managedExpansion(managedExpansionCB)
-  feature[this.name] = feature[this.name](app);
+  // ... by invoking the managedExpansionCB(fassets) embellished by managedExpansion(managedExpansionCB)
+  feature[this.name] = feature[this.name](fassets);
 
   // apply same slice to our final resolved reducer
   // ... so it is accessable to our internals (i.e. launchApp)
@@ -125,14 +125,15 @@ function expandFeatureContent(app, feature) {
  * Interpret the supplied features, generating our top-level app
  * reducer function.
  *
- * @param {App} app the App object used in feature cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  * 
  * @param {Feature[]} activeFeatures - The set of active (enabled)
  * features that comprise this application.
  *
  * @private
  */
-function assembleFeatureContent(app, activeFeatures) {
+function assembleFeatureContent(fassets, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
   // ... our logf() is in the accumAppReducer() surrogate
@@ -148,14 +149,15 @@ function assembleFeatureContent(app, activeFeatures) {
  * documented Aspect.getReduxMiddleware() API (an"aspect
  * cross-communication" mechanism).
  *
- * @param {App} app the App object used in feature cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  *
  * @param {Aspect[]} aspects - The set of **feature-u** Aspect objects
  * used in this this application.
  *
  * @private
  */
-function assembleAspectResources(app, aspects) {
+function assembleAspectResources(fassets, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
   const hookSummary = [];
@@ -254,7 +256,8 @@ function getReduxStore() {
  * element, providing standard access to the redux store (both state
  * and dispatch) through redux connect().
  *
- * @param {App} app the App object used in feature cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  * 
  * @param {reactElm} curRootAppElm - the current react app element root.
  *
@@ -264,7 +267,7 @@ function getReduxStore() {
  *
  * @private
  */
-function injectRootAppElm(app, curRootAppElm) {
+function injectRootAppElm(fassets, curRootAppElm) {
   logf(`injectRootAppElm() introducing redux <Provider> component into rootAppElm`);
   return (
     <Provider store={this.appStore}>

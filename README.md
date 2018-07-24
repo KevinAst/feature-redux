@@ -93,7 +93,7 @@ Let's see how this all works together ...
   npm install --save react-redux
   ```
   <!--- WITH REVEAL of USAGE:
-  npm install --save feature-u    # VER: >=0.1.0   USAGE: createAspect(), extendAspectProperty()
+  npm install --save feature-u    # VER: >=1.0.0   USAGE: createAspect(), extendAspectProperty() (v1 replaces App with Fassets obj -AND- publicFace with fassets aspect)
   npm install --save react        # VER: >=0.14.0  USAGE: inject <Provider> component
   npm install --save redux        # VER: >=3.1.0   USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
   npm install --save react-redux  # VER: >=1.0.0   USAGE: <Provider> component
@@ -230,8 +230,8 @@ to be promoted outside of a feature's boundary.  Say, for example,
 featureA's reducer needs to monitor one of featureB's actions, or one
 of featureB's logic modules needs to dispatch a featureA action.
 
-When this happens the [publicFace] **feature-u** aspect
-can be used for this promotion.
+When this happens the **feature-u** [`fassets aspect`] can be used for
+this promotion.
 
 Please note that in consideration of feature encapsulation, *best
 practices would strive to minimize the public promotion of actions
@@ -300,11 +300,11 @@ Each feature that maintains state, simply registers it's reducer
 through the `Feature.reducer` property _(using **feature-u**'s
 [`createFeature()`])_.  
 
-Because [reducers] may require access to **feature-u**'s [`App`] object
-during code expansion, this property can also be a **feature-u**
-[`managedExpansion()`] callback _(a function that returns the reducer)_
-... please refer to **feature-u**'s discussion of [Managed Code
-Expansion].
+Because [reducers] may require access to **feature-u**'s [`Fassets
+object`] during code expansion, this property can also be a
+**feature-u** [`managedExpansion()`] callback _(a function that
+returns the reducer)_ ... please refer to **feature-u**'s discussion
+of [Managed Code Expansion].
 
 #### Sliced Reducers
 
@@ -404,7 +404,7 @@ close proximity to your [reducers])_.
 
 While **feature-redux** does not directly manage anything about
 selectors, a feature may wish to promote some of it's selectors using
-the [publicFace] **feature-u** aspect.
+the **feature-u** [`fassets aspect`].
 
 Please note that in consideration of feature encapsulation, *best
 practices would strive to minimize the public promotion of feature
@@ -667,9 +667,9 @@ implemented)_ is intended to address this issue.
 [`launchApp()`]:          https://feature-u.js.org/cur/api.html#launchApp
 [`createFeature()`]:      https://feature-u.js.org/cur/api.html#createFeature
 [`managedExpansion()`]:   https://feature-u.js.org/cur/api.html#managedExpansion
-[publicFace]:             https://feature-u.js.org/cur/crossCommunication.html#publicface-and-the-app-object
+[`fassets aspect`]:       https://feature-u.js.org/cur/api.html#fassets
 [`Feature`]:              https://feature-u.js.org/cur/api.html#Feature
-[`App`]:                  https://feature-u.js.org/cur/api.html#App
+[`Fassets object`]:       https://feature-u.js.org/cur/api.html#Fassets
 [Managed Code Expansion]: https://feature-u.js.org/cur/crossCommunication.html#managed-code-expansion
 
 <!--- react ---> 
