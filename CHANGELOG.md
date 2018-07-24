@@ -74,12 +74,12 @@ releases _(i.e. a retrofit of client code is necessary)_.
 
 - **Internal**: Provide integration to 
   [**feature-u V1**](https://feature-u.js.org/cur/history.html#v1_0_0)
-  which has replaced the app object with a fassets object.  In
+  which has replaced the `app` object with a `fassets` object.  In
   general, this is not a change that would break a plugin, because
   app/fassets is a positional parameter that is merely passed through
   the plugin.  In other words the app/fassets is not directly
   interpreted by this plugin.  That being said, it is best to tidy up
-  this detail.  As a result, this plugin now has updated it's
+  this detail.  As a result, this plugin has now updated it's
   **feature-u** peerDependency to ">=1.0.0".
 
 
