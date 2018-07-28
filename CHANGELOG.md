@@ -64,23 +64,25 @@ UNRELEASED *********************************************************************
 &bull;
 [Diff](https://github.com/KevinAst/feature-redux/compare/v0.1.3...v1.0.0)
 
-**NOTE**: This release is a **non-breaking change** _(i.e. no API was affected)_.
-?? USE THIS, if we only include fassets integration
-
 **NOTE**: This release contains **breaking changes** from prior
 releases _(i.e. a retrofit of client code is necessary)_.
-?? USE THIS, if we remove singleton
-?? ALSO change description
 
 - **Internal**: Provide integration to 
   [**feature-u V1**](https://feature-u.js.org/cur/history.html#v1_0_0)
-  which has replaced the `app` object with a `fassets` object.  In
-  general, this is not a change that would break a plugin, because
+  which has replaced the `app` object with a `fassets` object.  
+
+  In general, this is not a change that would break a plugin, because
   app/fassets is a positional parameter that is merely passed through
   the plugin.  In other words the app/fassets is not directly
-  interpreted by this plugin.  That being said, it is best to tidy up
-  this detail.  As a result, this plugin has now updated it's
-  **feature-u** peerDependency to ">=1.0.0".
+  interpreted by this plugin.
+
+  However, **feature-redux** does have subtle indirect references to
+  changed **feature-u V1** APIs, _such as Error message strings, etc_.
+
+  Therefore, it is best to tidy up this detail.
+
+  As a result, this plugin has now updated it's **feature-u**
+  peerDependency to ">=1.0.0".
 
 
 <!-- *** RELEASE *************************************************************** -->
