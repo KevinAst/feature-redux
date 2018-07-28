@@ -74,7 +74,7 @@ function validateFeatureContent(feature) {
   return isFunction(content)
        ? ( content.slice
          ? null
-         : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`
+         : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFeature() (even when expandWithFassets() is used).`
        )
        : `${this.name} (when supplied) must be a function`;
 }
@@ -90,7 +90,7 @@ function validateFeatureContent(feature) {
  * 
  * @param {Feature} feature - the feature which is known to contain
  * this aspect **and** is in need of expansion (as defined by
- * managedExpansion()).
+ * expandWithFassets()).
  *
  * @return {string} an optional error message when the supplied
  * feature contains invalid content for this aspect (falsy when
@@ -107,18 +107,18 @@ function expandFeatureContent(fassets, feature) {
 
   // insure the slice is defined
   if (!slice) {
-    return `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`;
+    return `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFeature() (even when expandWithFassets() is used).`;
   }
 
   // expand self's content in the supplied feature
-  // ... by invoking the managedExpansionCB(fassets) embellished by managedExpansion(managedExpansionCB)
+  // ... by invoking the expandWithFassetsCB(fassets) embellished by expandWithFassets(expandWithFassetsCB)
   feature[this.name] = feature[this.name](fassets);
 
   // apply same slice to our final resolved reducer
   // ... so it is accessable to our internals (i.e. launchApp)
   slicedReducer(slice, feature[this.name]);
 
-  logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer managedExpansion()`);
+  logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer expandWithFassets()`);
 }
 
 /**

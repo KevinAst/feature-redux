@@ -302,7 +302,7 @@ through the `Feature.reducer` property _(using **feature-u**'s
 
 Because [reducers] may require access to **feature-u**'s [`Fassets
 object`] during code expansion, this property can also be a
-**feature-u** [`managedExpansion()`] callback _(a function that
+**feature-u** [`expandWithFassets()`] callback _(a function that
 returns the reducer)_ ... please refer to **feature-u**'s discussion
 of [Managed Code Expansion].
 
@@ -576,7 +576,7 @@ Please refer to the [Sliced Reducers] section for a
 complete description with examples.
 
 **Note:** `slicedReducer()` should always wrap the the outer
-function passed to [`createFeature()`], even when [`managedExpansion()`]
+function passed to [`createFeature()`], even when [`expandWithFassets()`]
 is used.  This gives your app code access to the embellished
 `getSlicedState()` selector, even prior to expansion occurring (_used
 as a single-source-of-truth in your selector definitions_).
@@ -666,7 +666,7 @@ implemented)_ is intended to address this issue.
 [feature-u]:              https://feature-u.js.org/
 [`launchApp()`]:          https://feature-u.js.org/cur/api.html#launchApp
 [`createFeature()`]:      https://feature-u.js.org/cur/api.html#createFeature
-[`managedExpansion()`]:   https://feature-u.js.org/cur/api.html#managedExpansion
+[`expandWithFassets()`]:  https://feature-u.js.org/cur/api.html#expandWithFassets
 [`fassets aspect`]:       https://feature-u.js.org/cur/api.html#fassets
 [`Feature`]:              https://feature-u.js.org/cur/api.html#Feature
 [`Fassets object`]:       https://feature-u.js.org/cur/api.html#Fassets

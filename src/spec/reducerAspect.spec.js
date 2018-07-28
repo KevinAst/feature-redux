@@ -1,6 +1,6 @@
 import React            from 'react';
 import {createFeature,
-        managedExpansion,
+        expandWithFassets,
         launchApp}      from 'feature-u';
 import createAspect$    from './createAspect$';
 import {reducerAspect,
@@ -75,10 +75,10 @@ describe('reducerAspect() tests', () => {
 
     // NOTE: also testing:
     //        - slicedReducer()
-    //        - managedExpansion()
+    //        - expandWithFassets()
     const rawReducer = (state=null, action) => 'feature1_state';
     const reducer    = slicedReducer('feature1',
-                                     managedExpansion( (fassets) => rawReducer ));
+                                     expandWithFassets( (fassets) => rawReducer ));
 
     const feature1 = createFeature({
       name:    'feature1',

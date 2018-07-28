@@ -1,5 +1,5 @@
 import {createFeature,
-        managedExpansion,
+        expandWithFassets,
         launchApp}      from 'feature-u';
 import {reducerAspect}  from '..'; // modules under test
 
@@ -18,7 +18,7 @@ describe('checkManagedAspectContentIsSliced', () => {
     features: [
       createFeature({
         name:    'feature1',
-        reducer: managedExpansion( (fassets) => nonSlicedReducer ),
+        reducer: expandWithFassets( (fassets) => nonSlicedReducer ),
       }),
     ],
     registerRootAppElm(rootAppElm) {
@@ -29,7 +29,7 @@ describe('checkManagedAspectContentIsSliced', () => {
   test('validate function', () => {
     expect(bad_launchApp)
       .toThrow(/reducer .* must be embellished with slicedReducer/);
-    // THROW: createFeature() parameter violation: reducer (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).
+    // THROW: createFeature() parameter violation: reducer (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when expandWithFassets() is used).
   });
 
 });
