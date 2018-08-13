@@ -119,14 +119,14 @@ Polyfills](#potential-need-for-polyfills))_.
 
    **src/app.js**
    ```js
-   import {launchApp}      from 'feature-u';
-   import {reducerAspect}  from 'feature-redux'; // **1**
-   import features         from './feature';
+   import {launchApp}           from 'feature-u';
+   import {createReducerAspect} from 'feature-redux'; // **1**
+   import features              from './feature';
 
    export default launchApp({
 
      aspects: [
-       reducerAspect,                            // **1**
+       createReducerAspect(),                         // **1**
        ... other Aspects here
      ],
 
@@ -538,6 +538,8 @@ specified by your features.
 ### reducerAspect: Aspect
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
+
+`API: createReducerAspect([name='reducer']): reducerAspect`
 
 The `reducerAspect` is the [feature-u] plugin that facilitates
 [redux] integration to your features.

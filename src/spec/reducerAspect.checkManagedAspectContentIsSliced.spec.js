@@ -1,7 +1,9 @@
 import {createFeature,
         expandWithFassets,
-        launchApp}      from 'feature-u';
-import {reducerAspect}  from '..'; // modules under test
+        launchApp}           from 'feature-u';
+import {createReducerAspect} from '..'; // modules under test
+
+const reducerAspect = createReducerAspect();
 
 // NOTE: This test is broken out into a separate module to clear
 //       any residual reducerAspect state as a result of invoking

@@ -11,7 +11,7 @@ and **contains migration instructions**.
 
 Release  | What                                            | *When*
 ---------|-------------------------------------------------|------------------
-[v1.0.0] | feature-u V1 Integration                        | *July ??, 2018*
+[v1.0.0] | feature-u V1 Integration                        | *August ??, 2018*
 [v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
 [v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
 [v0.1.1] | react-native android patch                      | *March 7, 2018*
@@ -56,7 +56,7 @@ UNRELEASED *********************************************************************
 
 <!-- *** RELEASE *************************************************************** -->
 
-## v1.0.0 - feature-u V1 Integration *(July ??, 2018)*
+## v1.0.0 - feature-u V1 Integration *(August ??, 2018)*
 
 [GitHub Content](https://github.com/KevinAst/feature-redux/tree/v1.0.0)
 &bull;
@@ -67,9 +67,18 @@ UNRELEASED *********************************************************************
 **NOTE**: This release contains **breaking changes** from prior
 releases _(i.e. a retrofit of client code is necessary)_.
 
-- **Internal**: Provide integration to 
-  [**feature-u V1**](https://feature-u.js.org/cur/history.html#v1_0_0)
-  which has replaced the `app` object with a `fassets` object.  
+- **Added/Removed**: Eliminate singletons in favor of creators
+
+  The singleton: `reducerAspect`, has be replaced with a new creator:
+  `createReducerAspect()`.
+
+  This is useful in both testing and server side rendering.
+
+
+- **Internal**: Integrate to [**feature-u V1**](https://feature-u.js.org/cur/history.html#v1_0_0)
+
+  **feature-u V1** has replaced the `app` object with a `fassets`
+  object.
 
   In general, this is not a change that would break a plugin, because
   app/fassets is a positional parameter that is merely passed through

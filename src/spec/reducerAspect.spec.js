@@ -3,8 +3,10 @@ import {createFeature,
         expandWithFassets,
         launchApp}      from 'feature-u';
 import createAspect$    from './createAspect$';
-import {reducerAspect,
+import {createReducerAspect,
         slicedReducer}  from '..'; // modules under test
+
+const reducerAspect = createReducerAspect();
 
 
 describe('reducerAspect() tests', () => {
@@ -15,6 +17,18 @@ describe('reducerAspect() tests', () => {
       expect( reducerAspect.name)
         .toEqual('reducer');
     });
+
+  });
+
+  describe('validate createReducerAspect() parameter violation', () => {
+
+    expect( () => createReducerAspect(null) )
+      .toThrow(/name is required/);
+    // THROW: createReducerAspect() parameter violation: name is required
+
+    expect( () => createReducerAspect(123) )
+      .toThrow(/name must be a string/);
+    // THROW: createReducerAspect() parameter violation: name must be a string
 
   });
 

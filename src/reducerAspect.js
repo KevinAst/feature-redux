@@ -8,27 +8,41 @@ import {createAspect,
         launchApp,
         extendAspectProperty}  from 'feature-u';       // peerDependency: 
 import slicedReducer           from './slicedReducer';
+import verify                  from './util/verify';
+import isString                from 'lodash.isstring';
 import isFunction              from 'lodash.isfunction';
 
 // our logger (integrated/activated via feature-u)
 const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect: ');
 
 // NOTE: See README for complete description
-export default createAspect({
-  name: 'reducer', // to fully manage all of redux, we ONLY need the reducers (hence our name)!
-  genesis,
-  validateFeatureContent,
-  expandFeatureContent,
-  assembleFeatureContent,
-  assembleAspectResources,
-  getReduxStore,
-  injectRootAppElm,
-  config: {
-    allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
-    createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
-    reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
-  },
-});
+export default function createReducerAspect(name='reducer') {
+
+  // validate parameters
+  const check = verify.prefix('createReducerAspect() parameter violation: ');
+
+  check(name,            'name is required');
+  check(isString(name),  'name must be a string');
+
+
+  // create/promote our new aspect
+  const reducerAspect = createAspect({
+    name,
+    genesis,
+    validateFeatureContent,
+    expandFeatureContent,
+    assembleFeatureContent,
+    assembleAspectResources,
+    getReduxStore,
+    injectRootAppElm,
+    config: {
+      allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
+      createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
+      reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
+    },
+  });
+  return reducerAspect;
+}
 
 
 /**
