@@ -69,7 +69,7 @@ releases _(i.e. a retrofit of client code is necessary)_.
 
 - **Added/Removed**: Eliminate singletons in favor of creators
 
-  The singleton: `reducerAspect`, has be replaced with a new creator:
+  The singleton: `reducerAspect`, has been replaced with a new creator:
   `createReducerAspect()`.
 
   This is useful in both testing and server side rendering.
