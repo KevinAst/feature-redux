@@ -11,7 +11,7 @@ and **contains migration instructions**.
 
 Release  | What                                            | *When*
 ---------|-------------------------------------------------|------------------
-[v1.0.0] | feature-u V1 Integration                        | *August ??, 2018*
+[v1.0.0] | feature-u V1 Integration                        | *August 14, 2018*
 [v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
 [v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
 [v0.1.1] | react-native android patch                      | *March 7, 2018*
@@ -56,7 +56,7 @@ UNRELEASED *********************************************************************
 
 <!-- *** RELEASE *************************************************************** -->
 
-## v1.0.0 - feature-u V1 Integration *(August ??, 2018)*
+## v1.0.0 - feature-u V1 Integration *(August 14, 2018)*
 
 [GitHub Content](https://github.com/KevinAst/feature-redux/tree/v1.0.0)
 &bull;
