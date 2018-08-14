@@ -18,7 +18,7 @@ Release  | What                                            | *When*
 [v0.1.0] | Initial Release                                 | *March 6, 2018*
 
 
-[v1.0.0]: #v100---feature-u-v1-integration-july--2018
+[v1.0.0]: #v100---feature-u-v1-integration-august-14-2018
 [v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
 [v0.1.2]: #v012---auto-redux-devtools-integration-march-29-2018
 [v0.1.1]: #v011---react-native-android-patch-march-7-2018
