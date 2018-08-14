@@ -71,6 +71,7 @@
   },
   "homepage": "https://github.com/KevinAst/feature-redux",
   "jest": {
+    "testURL": "http://localhost",
     "collectCoverageFrom": [
       "src/**/*.js",
       "!**/spec/**"
