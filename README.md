@@ -93,7 +93,7 @@ Let's see how this all works together ...
   npm install --save react-redux
   ```
   <!--- WITH REVEAL of USAGE:
-  npm install --save feature-u    # VER: >=0.1.0   USAGE: createAspect(), extendAspectProperty()
+  npm install --save feature-u    # VER: >=1.0.0   USAGE: createAspect(), extendAspectProperty() (v1 replaces App with Fassets obj -AND- publicFace with fassets aspect)
   npm install --save react        # VER: >=0.14.0  USAGE: inject <Provider> component
   npm install --save redux        # VER: >=3.1.0   USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
   npm install --save react-redux  # VER: >=1.0.0   USAGE: <Provider> component
@@ -119,14 +119,14 @@ Polyfills](#potential-need-for-polyfills))_.
 
    **src/app.js**
    ```js
-   import {launchApp}      from 'feature-u';
-   import {reducerAspect}  from 'feature-redux'; // **1**
-   import features         from './feature';
+   import {launchApp}           from 'feature-u';
+   import {createReducerAspect} from 'feature-redux'; // **1**
+   import features              from './feature';
 
    export default launchApp({
 
      aspects: [
-       reducerAspect,                            // **1**
+       createReducerAspect(),                         // **1**
        ... other Aspects here
      ],
 
@@ -230,8 +230,8 @@ to be promoted outside of a feature's boundary.  Say, for example,
 featureA's reducer needs to monitor one of featureB's actions, or one
 of featureB's logic modules needs to dispatch a featureA action.
 
-When this happens the [publicFace] **feature-u** aspect
-can be used for this promotion.
+When this happens the **feature-u** [`fassets aspect`] can be used for
+this promotion.
 
 Please note that in consideration of feature encapsulation, *best
 practices would strive to minimize the public promotion of actions
@@ -300,11 +300,11 @@ Each feature that maintains state, simply registers it's reducer
 through the `Feature.reducer` property _(using **feature-u**'s
 [`createFeature()`])_.  
 
-Because [reducers] may require access to **feature-u**'s [`App`] object
-during code expansion, this property can also be a **feature-u**
-[`managedExpansion()`] callback _(a function that returns the reducer)_
-... please refer to **feature-u**'s discussion of [Managed Code
-Expansion].
+Because [reducers] may require access to **feature-u**'s [`Fassets
+object`] during code expansion, this property can also be a
+**feature-u** [`expandWithFassets()`] callback _(a function that
+returns the reducer)_ ... please refer to **feature-u**'s discussion
+of [Managed Code Expansion].
 
 #### Sliced Reducers
 
@@ -404,7 +404,7 @@ close proximity to your [reducers])_.
 
 While **feature-redux** does not directly manage anything about
 selectors, a feature may wish to promote some of it's selectors using
-the [publicFace] **feature-u** aspect.
+the **feature-u** [`fassets aspect`].
 
 Please note that in consideration of feature encapsulation, *best
 practices would strive to minimize the public promotion of feature
@@ -539,6 +539,8 @@ specified by your features.
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
+`API: createReducerAspect([name='reducer']): reducerAspect`
+
 The `reducerAspect` is the [feature-u] plugin that facilitates
 [redux] integration to your features.
 
@@ -576,7 +578,7 @@ Please refer to the [Sliced Reducers] section for a
 complete description with examples.
 
 **Note:** `slicedReducer()` should always wrap the the outer
-function passed to [`createFeature()`], even when [`managedExpansion()`]
+function passed to [`createFeature()`], even when [`expandWithFassets()`]
 is used.  This gives your app code access to the embellished
 `getSlicedState()` selector, even prior to expansion occurring (_used
 as a single-source-of-truth in your selector definitions_).
@@ -666,10 +668,10 @@ implemented)_ is intended to address this issue.
 [feature-u]:              https://feature-u.js.org/
 [`launchApp()`]:          https://feature-u.js.org/cur/api.html#launchApp
 [`createFeature()`]:      https://feature-u.js.org/cur/api.html#createFeature
-[`managedExpansion()`]:   https://feature-u.js.org/cur/api.html#managedExpansion
-[publicFace]:             https://feature-u.js.org/cur/crossCommunication.html#publicface-and-the-app-object
+[`expandWithFassets()`]:  https://feature-u.js.org/cur/api.html#expandWithFassets
+[`fassets aspect`]:       https://feature-u.js.org/cur/api.html#fassets
 [`Feature`]:              https://feature-u.js.org/cur/api.html#Feature
-[`App`]:                  https://feature-u.js.org/cur/api.html#App
+[`Fassets object`]:       https://feature-u.js.org/cur/api.html#Fassets
 [Managed Code Expansion]: https://feature-u.js.org/cur/crossCommunication.html#managed-code-expansion
 
 <!--- react ---> 

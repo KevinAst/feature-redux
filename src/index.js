@@ -1,5 +1,5 @@
-import reducerAspect  from './reducerAspect';
-import slicedReducer  from './slicedReducer';
+import createReducerAspect  from './reducerAspect';
+import slicedReducer        from './slicedReducer';
 
 //*** 
 //*** Promote all feature-redux utilities through a centralized module.
@@ -11,7 +11,7 @@ import slicedReducer  from './slicedReducer';
 //       -or-
 //         import * as FeatureU from 'feature-redux';
 export {
-  reducerAspect,
+  createReducerAspect,
   slicedReducer,
 };
 
@@ -21,7 +21,7 @@ export {
 //       -or-
 //         const FeatureU   = require('feature-redux');
 export default {
-  reducerAspect,
+  createReducerAspect,
   slicedReducer,
 };
 

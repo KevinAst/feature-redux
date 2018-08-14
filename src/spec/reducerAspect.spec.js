@@ -1,10 +1,12 @@
 import React            from 'react';
 import {createFeature,
-        managedExpansion,
+        expandWithFassets,
         launchApp}      from 'feature-u';
 import createAspect$    from './createAspect$';
-import {reducerAspect,
+import {createReducerAspect,
         slicedReducer}  from '..'; // modules under test
+
+const reducerAspect = createReducerAspect();
 
 
 describe('reducerAspect() tests', () => {
@@ -15,6 +17,18 @@ describe('reducerAspect() tests', () => {
       expect( reducerAspect.name)
         .toEqual('reducer');
     });
+
+  });
+
+  describe('validate createReducerAspect() parameter violation', () => {
+
+    expect( () => createReducerAspect(null) )
+      .toThrow(/name is required/);
+    // THROW: createReducerAspect() parameter violation: name is required
+
+    expect( () => createReducerAspect(123) )
+      .toThrow(/name must be a string/);
+    // THROW: createReducerAspect() parameter violation: name must be a string
 
   });
 
@@ -64,7 +78,7 @@ describe('reducerAspect() tests', () => {
     });
 
     test('perform the test', () => {
-      reducerAspect.assembleAspectResources('simulated app', aspects);
+      reducerAspect.assembleAspectResources('simulated fassets', aspects);
       expect(reducerAspect.appStore)
         .toEqual(['simulated midleware']);
     });
@@ -75,10 +89,10 @@ describe('reducerAspect() tests', () => {
 
     // NOTE: also testing:
     //        - slicedReducer()
-    //        - managedExpansion()
+    //        - expandWithFassets()
     const rawReducer = (state=null, action) => 'feature1_state';
     const reducer    = slicedReducer('feature1',
-                                     managedExpansion( (app) => rawReducer ));
+                                     expandWithFassets( (fassets) => rawReducer ));
 
     const feature1 = createFeature({
       name:    'feature1',
@@ -86,7 +100,7 @@ describe('reducerAspect() tests', () => {
       // prevent <Provider> from complaining about NO children
       // by injecting any dummy DOM content (via appWillStart())
       // ... eslint mistakenly seeing this as a react component (see: eslint-disable-line)
-      appWillStart({app, curRootAppElm}) { // eslint-disable-line react/prop-types
+      appWillStart({fassets, curRootAppElm}) { // eslint-disable-line react/prop-types
         return <p>This is a test</p>;
       },
     });

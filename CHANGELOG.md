@@ -11,12 +11,14 @@ and **contains migration instructions**.
 
 Release  | What                                            | *When*
 ---------|-------------------------------------------------|------------------
+[v1.0.0] | feature-u V1 Integration                        | *August 14, 2018*
 [v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
 [v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
 [v0.1.1] | react-native android patch                      | *March 7, 2018*
 [v0.1.0] | Initial Release                                 | *March 6, 2018*
 
 
+[v1.0.0]: #v100---feature-u-v1-integration-july--2018
 [v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
 [v0.1.2]: #v012---auto-redux-devtools-integration-march-29-2018
 [v0.1.1]: #v011---react-native-android-patch-march-7-2018
@@ -51,6 +53,45 @@ RUNNING CONTENT (pop out as needed) ...
 
 UNRELEASED ******************************************************************************** -->
 
+
+<!-- *** RELEASE *************************************************************** -->
+
+## v1.0.0 - feature-u V1 Integration *(August 14, 2018)*
+
+[GitHub Content](https://github.com/KevinAst/feature-redux/tree/v1.0.0)
+&bull;
+[GitHub Release](https://github.com/KevinAst/feature-redux/releases/tag/v1.0.0)
+&bull;
+[Diff](https://github.com/KevinAst/feature-redux/compare/v0.1.3...v1.0.0)
+
+**NOTE**: This release contains **breaking changes** from prior
+releases _(i.e. a retrofit of client code is necessary)_.
+
+- **Added/Removed**: Eliminate singletons in favor of creators
+
+  The singleton: `reducerAspect`, has been replaced with a new creator:
+  `createReducerAspect()`.
+
+  This is useful in both testing and server side rendering.
+
+
+- **Internal**: Integrate to [**feature-u V1**](https://feature-u.js.org/cur/history.html#v1_0_0)
+
+  **feature-u V1** has replaced the `app` object with a `fassets`
+  object.
+
+  In general, this is not a change that would break a plugin, because
+  app/fassets is a positional parameter that is merely passed through
+  the plugin.  In other words the app/fassets is not directly
+  interpreted by this plugin.
+
+  However, **feature-redux** does have subtle indirect references to
+  changed **feature-u V1** APIs, _such as Error message strings, etc_.
+
+  Therefore, it is best to tidy up this detail.
+
+  As a result, this plugin has now updated it's **feature-u**
+  peerDependency to ">=1.0.0".
 
 
 <!-- *** RELEASE *************************************************************** -->

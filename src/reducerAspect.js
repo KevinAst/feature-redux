@@ -8,27 +8,41 @@ import {createAspect,
         launchApp,
         extendAspectProperty}  from 'feature-u';       // peerDependency: 
 import slicedReducer           from './slicedReducer';
+import verify                  from './util/verify';
+import isString                from 'lodash.isstring';
 import isFunction              from 'lodash.isfunction';
 
 // our logger (integrated/activated via feature-u)
 const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect: ');
 
 // NOTE: See README for complete description
-export default createAspect({
-  name: 'reducer', // to fully manage all of redux, we ONLY need the reducers (hence our name)!
-  genesis,
-  validateFeatureContent,
-  expandFeatureContent,
-  assembleFeatureContent,
-  assembleAspectResources,
-  getReduxStore,
-  injectRootAppElm,
-  config: {
-    allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
-    createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
-    reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
-  },
-});
+export default function createReducerAspect(name='reducer') {
+
+  // validate parameters
+  const check = verify.prefix('createReducerAspect() parameter violation: ');
+
+  check(name,            'name is required');
+  check(isString(name),  'name must be a string');
+
+
+  // create/promote our new aspect
+  const reducerAspect = createAspect({
+    name,
+    genesis,
+    validateFeatureContent,
+    expandFeatureContent,
+    assembleFeatureContent,
+    assembleAspectResources,
+    getReduxStore,
+    injectRootAppElm,
+    config: {
+      allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
+      createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
+      reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
+    },
+  });
+  return reducerAspect;
+}
 
 
 /**
@@ -74,7 +88,7 @@ function validateFeatureContent(feature) {
   return isFunction(content)
        ? ( content.slice
          ? null
-         : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`
+         : `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFeature() (even when expandWithFassets() is used).`
        )
        : `${this.name} (when supplied) must be a function`;
 }
@@ -85,12 +99,12 @@ function validateFeatureContent(feature) {
  * the slice property from the expansion function to the expanded
  * reducer.
  *
- * @param {App} app the App object used in feature
- * cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  * 
  * @param {Feature} feature - the feature which is known to contain
  * this aspect **and** is in need of expansion (as defined by
- * managedExpansion()).
+ * expandWithFassets()).
  *
  * @return {string} an optional error message when the supplied
  * feature contains invalid content for this aspect (falsy when
@@ -100,39 +114,40 @@ function validateFeatureContent(feature) {
  *
  * @private
  */
-function expandFeatureContent(app, feature) {
+function expandFeatureContent(fassets, feature) {
   // hold on to our reducer slice
   // ... so as to apply it to our final resolved reducer (below)
   const slice = feature[this.name].slice;
 
   // insure the slice is defined
   if (!slice) {
-    return `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFunction() (even when managedExpansion() is used).`;
+    return `${this.name} (when supplied) must be embellished with slicedReducer(). SideBar: slicedReducer() should always wrap the the outer function passed to createFeature() (even when expandWithFassets() is used).`;
   }
 
   // expand self's content in the supplied feature
-  // ... by invoking the managedExpansionCB(app) embellished by managedExpansion(managedExpansionCB)
-  feature[this.name] = feature[this.name](app);
+  // ... by invoking the expandWithFassetsCB(fassets) embellished by expandWithFassets(expandWithFassetsCB)
+  feature[this.name] = feature[this.name](fassets);
 
   // apply same slice to our final resolved reducer
   // ... so it is accessable to our internals (i.e. launchApp)
   slicedReducer(slice, feature[this.name]);
 
-  logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer managedExpansion()`);
+  logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer expandWithFassets()`);
 }
 
 /**
  * Interpret the supplied features, generating our top-level app
  * reducer function.
  *
- * @param {App} app the App object used in feature cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  * 
  * @param {Feature[]} activeFeatures - The set of active (enabled)
  * features that comprise this application.
  *
  * @private
  */
-function assembleFeatureContent(app, activeFeatures) {
+function assembleFeatureContent(fassets, activeFeatures) {
 
   // interpret the supplied features, generating our top-level app reducer function
   // ... our logf() is in the accumAppReducer() surrogate
@@ -148,14 +163,15 @@ function assembleFeatureContent(app, activeFeatures) {
  * documented Aspect.getReduxMiddleware() API (an"aspect
  * cross-communication" mechanism).
  *
- * @param {App} app the App object used in feature cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  *
  * @param {Aspect[]} aspects - The set of **feature-u** Aspect objects
  * used in this this application.
  *
  * @private
  */
-function assembleAspectResources(app, aspects) {
+function assembleAspectResources(fassets, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
   const hookSummary = [];
@@ -254,7 +270,8 @@ function getReduxStore() {
  * element, providing standard access to the redux store (both state
  * and dispatch) through redux connect().
  *
- * @param {App} app the App object used in feature cross-communication.
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
  * 
  * @param {reactElm} curRootAppElm - the current react app element root.
  *
@@ -264,7 +281,7 @@ function getReduxStore() {
  *
  * @private
  */
-function injectRootAppElm(app, curRootAppElm) {
+function injectRootAppElm(fassets, curRootAppElm) {
   logf(`injectRootAppElm() introducing redux <Provider> component into rootAppElm`);
   return (
     <Provider store={this.appStore}>
