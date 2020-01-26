@@ -65,6 +65,7 @@ function genesis() {
 
   extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
   extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
+  extendAspectProperty('getReduxEnhancer', 'feature-redux');   // Aspect.getReduxEnhancer(): StoreEnhancer
 }
 
 
@@ -174,7 +175,7 @@ function assembleFeatureContent(fassets, activeFeatures) {
 function assembleAspectResources(fassets, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
-  const hookSummary = [];
+  let hookSummary = [];
   const middleware = aspects.reduce( (accum, aspect) => {
     if (aspect.getReduxMiddleware) {
       const reduxMiddleware = aspect.getReduxMiddleware();
@@ -193,10 +194,29 @@ function assembleAspectResources(fassets, aspects) {
   }, []);
   logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
 
+  hookSummary = [];
+  const enhancer = aspects.reduce((accum, aspect) => {
+    if (aspect.getReduxEnhancer) {
+      const reduxEnhancer = aspect.getReduxEnhancer();
+      if (reduxEnhancer) {
+        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer()`);
+        accum.push(reduxEnhancer);
+      }
+      else {
+        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer() ... HOWEVER returned null`);
+      }
+    }
+    else {
+      hookSummary.push(`\n  Aspect.name:${aspect.name}`);
+    }
+    return accum;
+  }, []);
+  logf(`assembleAspectResources() gathered ReduxEnhancer from the following Aspects: ${hookSummary}`);
+
   // create our redux store (retained in self for subsequent usage)
   // ... accomplished in internal config micro function (a defensive measure to allow easier overriding by client)
-  logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
-  this.appStore = this.config.createReduxStore$(this.appReducer, middleware);
+  logf(`assembleAspectResources() defining our Redux store WITH optional middleware and enhancer registration`);
+  this.appStore = this.config.createReduxStore$(this.appReducer, middleware, enhancer);
 }
 
 
@@ -214,18 +234,36 @@ function assembleAspectResources(fassets, aspects) {
  * reduxMiddleware items to register to redux (zero length array if
  * none).
  *
+ * @param {reduxEnhancer[]} enhancerArr - the optional set of
+ * reduxEnhancer items to register to redux (zero length array if
+ * none).
+ *
  * @return {reduxAppStore} the newly created redux app store.
  *
  * @private
  */
-function createReduxStore$(appReducer, middlewareArr) {
+function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
   // auto configure Redux DevTools (when detected)
   const {enhancer$, compose$} = this.reduxDevToolHook$();
 
+  if (enhancer$) {
+    enhancerArr.push(enhancer$);
+  }
+
+  const enhancers = [];
+  if (middlewareArr.length > 0) {
+    enhancers.push(applyMiddleware(...middlewareArr));
+  }
+  if (enhancerArr.length > 0) {
+    enhancers.push(...enhancerArr);
+  }
+
   // define our Redux app-wide store WITH optional middleware regsistration
-  return  middlewareArr.length === 0
-           ? createStore(appReducer, enhancer$) // NOTE: passing enhancer as last argument requires redux@>=3.1.0
-           : createStore(appReducer, compose$(applyMiddleware(...middlewareArr)));
+  // NOTE: passing enhancer as last argument requires redux@>=3.1.0
+  return enhancers.length === 0
+    ? createStore(appReducer)
+    : createStore(appReducer, compose$(enhancers));
+
 }
 
 

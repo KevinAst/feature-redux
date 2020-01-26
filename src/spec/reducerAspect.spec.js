@@ -85,6 +85,45 @@ describe('reducerAspect() tests', () => {
   });
 
 
+  describe('insure assembleAspectResources() enhance accumulation handles all 3 scenarios', () => {
+
+    const aspects = [ // here are the 3 scenarios
+      createAspect$({
+        name: 'aspectWithNoEnhancer',
+      }),
+      createAspect$({
+        name: 'aspectWithNullEnhancer',
+        getReduxEnhancer: () => null,
+      }),
+      createAspect$({
+        name: 'aspectWithEnhancer',
+        getReduxEnhancer: () => 'simulated enhancer',
+      }),
+    ];
+
+    let original_createReduxStore$ = null;
+    beforeEach(() => {
+      original_createReduxStore$ = reducerAspect.config.createReduxStore$;
+      reducerAspect.config.createReduxStore$ = function (appReducer, middlewareArr, enhancerArr) {
+        // simulate createStore ... just pass back the enhancerArr to be tested
+        return enhancerArr;
+      };
+      launchApp.diag.logf.enable(); // excercise logs (to insure there is NO coding bugs)
+    });
+    afterEach(() => {
+      // reset everything back to original
+      reducerAspect.config.createReduxStore$ = original_createReduxStore$;
+      launchApp.diag.logf.disable();
+    });
+
+    test('perform the test', () => {
+      reducerAspect.assembleAspectResources('simulated fassets', aspects);
+      expect(reducerAspect.appStore)
+        .toEqual(['simulated enhancer']);
+    });
+  });
+
+
   describe('full-blown redux test configured with reducerAspect', () => {
 
     // NOTE: also testing:
