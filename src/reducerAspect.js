@@ -130,7 +130,7 @@ function expandFeatureContent(fassets, feature) {
   feature[this.name] = feature[this.name](fassets);
 
   // apply same slice to our final resolved reducer
-  // ... so it is accessable to our internals (i.e. launchApp)
+  // ... so it is accessible to our internals (i.e. launchApp)
   slicedReducer(slice, feature[this.name]);
 
   logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer expandWithFassets()`);
@@ -223,7 +223,7 @@ function assembleAspectResources(fassets, aspects) {
 
 /**
  * An internal config micro function that creates/returns the redux
- * app store WITH optional middleware regsistration.
+ * app store WITH optional middleware registration.
  *
  * This logic is broken out in this internal method as a defensive
  * measure to make it easier for a client to override (if needed for
@@ -262,7 +262,7 @@ function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
     enhancers.push(enhancer$);
   }
 
-  // define our Redux app-wide store WITH optional middleware/enhancer regsistration
+  // define our Redux app-wide store WITH optional middleware/enhancer registration
   // NOTE: passing enhancer as last argument requires redux@>=3.1.0
   return enhancers.length === 0
           ? createStore(appReducer)
@@ -356,7 +356,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
   // ... generating the "shaped" genesis structure
   //     used in combining all reducers into a top-level app reducer
   //     EXAMPLE:
-  //     - given following reducers (each from a seperate Feature):
+  //     - given following reducers (each from a separate Feature):
   //         Feature.reducer: slicedReducer('device',           deviceReducerFn)
   //         Feature.reducer: slicedReducer('auth',             authReducerFn)
   //         Feature.reducer: slicedReducer('view.currentView', currentViewReducerFn)
@@ -380,7 +380,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
     if (feature[aspectName]) {
 
       const reducer = feature[aspectName]; // our feature content is a reducer!
-      const slice   = reducer.slice;       // our validation ensures embelishment via slicedReducer()
+      const slice   = reducer.slice;       // our validation ensures embellishment via slicedReducer()
 
       // interpret the slice's federated namespace into a structure with depth
       const nodeNames    = slice.split('.');
@@ -391,7 +391,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
         const nodeName = nodeNames[i];
         const leafNode = (i === nodeNames.length-1);
 
-        // utilize existing subNode (from other features), or create new (on first occurance)
+        // utilize existing subNode (from other features), or create new (on first occurrence)
         const subNodeExisted = (runningNode[nodeName]) ? true : false;
         const subNode        = runningNode[nodeName] || {};
 
@@ -444,20 +444,20 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
   }
 
   // convert our "shaped" genesis structure into a single top-level app reducer function
-  logf(`assembleFeatureContent() the overal appState shape is: `, shapedGenesis);
+  logf(`assembleFeatureContent() the overall appState shape is: `, shapedGenesis);
   const appReducer = accumReducer(shapedGenesis);
   return appReducer;
 }
 
 
 /**
- * A recursive function that acumulates all reducers in the supplied
- * genisisNode into a single reducer function.
+ * A recursive function that accumulates all reducers in the supplied
+ * genesisNode into a single reducer function.
  *
- * @param {GenisisStruct} genesisNode a "shaped" genesis structure
+ * @param {GenesisStruct} genesisNode a "shaped" genesis structure
  * used in combining all reducers.
  *
- * @return {reducerFn} a reducer function that recursivally
+ * @return {reducerFn} a reducer function that recursively
  * accumulates all reducers found in the supplied genesisNode.
  *
  * @private
