@@ -175,43 +175,44 @@ function assembleFeatureContent(fassets, activeFeatures) {
 function assembleAspectResources(fassets, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
-  let hookSummary = [];
+  const middlewareSummaryLog = [];
   const middleware = aspects.reduce( (accum, aspect) => {
     if (aspect.getReduxMiddleware) {
       const reduxMiddleware = aspect.getReduxMiddleware();
       if (reduxMiddleware) {
-        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
+        middlewareSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
         accum.push( reduxMiddleware );
       }
       else {
-        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware() ... HOWEVER returned null`);
+        middlewareSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware() ... HOWEVER returned null`);
       }
     }
     else {
-      hookSummary.push(`\n  Aspect.name:${aspect.name}`);
+      middlewareSummaryLog.push(`\n  Aspect.name:${aspect.name}`);
     }
     return accum;
   }, []);
-  logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
+  logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${middlewareSummaryLog}`);
 
-  hookSummary = [];
+  // collect any redux store enhancers from other aspects through OUR Aspect.getReduxEnhancer() API
+  const enhancerSummaryLog = [];
   const enhancer = aspects.reduce((accum, aspect) => {
     if (aspect.getReduxEnhancer) {
       const reduxEnhancer = aspect.getReduxEnhancer();
       if (reduxEnhancer) {
-        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer()`);
+        enhancerSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer()`);
         accum.push(reduxEnhancer);
       }
       else {
-        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer() ... HOWEVER returned null`);
+        enhancerSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer() ... HOWEVER returned null`);
       }
     }
     else {
-      hookSummary.push(`\n  Aspect.name:${aspect.name}`);
+      enhancerSummaryLog.push(`\n  Aspect.name:${aspect.name}`);
     }
     return accum;
   }, []);
-  logf(`assembleAspectResources() gathered ReduxEnhancer from the following Aspects: ${hookSummary}`);
+  logf(`assembleAspectResources() gathered ReduxEnhancer from the following Aspects: ${enhancerSummaryLog}`);
 
   // create our redux store (retained in self for subsequent usage)
   // ... accomplished in internal config micro function (a defensive measure to allow easier overriding by client)
@@ -246,24 +247,26 @@ function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
   // auto configure Redux DevTools (when detected)
   const {enhancer$, compose$} = this.reduxDevToolHook$();
 
-  if (enhancer$) {
-    enhancerArr.push(enhancer$);
-  }
-
+  // define the redux enhancers (if any) that feed into our createStore() invocation
   const enhancers = [];
+  // ... middlewareArr: apply enhancer for middleware supplied by other Aspect Plugins
   if (middlewareArr.length > 0) {
     enhancers.push(applyMiddleware(...middlewareArr));
   }
+  // ... enhancerArr: apply enhancers supplied by other Aspect Plugins (i.e. self's param)
   if (enhancerArr.length > 0) {
     enhancers.push(...enhancerArr);
   }
+  // ... enhancer$ apply enhancer optionally defined by Redux Dev Tools (when installed in browser)
+  if (enhancer$) {
+    enhancers.push(enhancer$);
+  }
 
-  // define our Redux app-wide store WITH optional middleware regsistration
+  // define our Redux app-wide store WITH optional middleware/enhancer regsistration
   // NOTE: passing enhancer as last argument requires redux@>=3.1.0
   return enhancers.length === 0
-    ? createStore(appReducer)
-    : createStore(appReducer, compose$(enhancers));
-
+          ? createStore(appReducer)
+          : createStore(appReducer, compose$(enhancers));
 }
 
 
@@ -282,7 +285,7 @@ function reduxDevToolHook$() {
   const enhancer$ = extension && extension();
   const compose$  = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
   if (extension) {
-    logf.force('createReduxStore$() hooking into  Redux DevTools (installed in your browser)');
+    logf.force('reduxDevToolHook$() hooking into  Redux DevTools (installed in your browser)');
   }
   return {enhancer$, compose$};
 }
