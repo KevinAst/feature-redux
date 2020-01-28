@@ -78,6 +78,15 @@ releases.  _A retrofit of client code is necessary_.
   match the required peer dependency of feature-u _(which is also
   v3.0.0)_.
 
+- **Added**: External Aspects may now introduce their own enhancers to
+  the redux store through the `Aspect.getReduxEnhancer()` API _(an
+  "aspect cross-communication mechanism")_ **... thanks
+  [@sylvainlg](https://github.com/sylvainlg)!!**
+  _This similar to how External Aspects have always been able to 
+  introduce their own redux middleware_.
+  Please refer to the "Enhancer Integration"
+  [Inputs](./README.md#inputs) section for more information.
+
 - **More**: ??
 
 - **Security**: ?? Address potential security vulnerabilities in

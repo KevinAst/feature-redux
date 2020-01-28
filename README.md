@@ -473,6 +473,13 @@ this process (_i.e. the inputs and outputs_) are documented here.
    mechanism").  As an example, the [feature-redux-logic] Aspect
    integrates **redux-logic**.
 
+3. **Enhancer Integration**:
+
+   Because **feature-redux** manages [redux], other Aspects can
+   promote their [redux enhancer] through **feature-redux**'s
+   `Aspect.getReduxEnhancer()` API (an "aspect cross-communication
+   mechanism").
+
 
 ### Exposure
 
@@ -484,14 +491,20 @@ this process (_i.e. the inputs and outputs_) are documented here.
    access to the [redux store] (along with it's `dispatch()` and
    `getState()`) through the standard **redux** [`connect()`] function.
 
-2. **Middleware Features**:
+2. **Redux Middleware**:
 
    Because **feature-redux** allows other aspects to inject their
    [redux middleware], whatever that middleware exposes is made
    available.  As an example, the [feature-redux-logic] Aspect
    injects **redux-logic**.
+
+3. **Redux Enhancer**:
+
+   Because **feature-redux** allows other aspects to inject their
+   [redux enhancer], whatever that enhancer exposes is made
+   available.
    
-3. **Other**:
+4. **Other**:
 
    - For good measure, **feature-redux** promotes the [redux store]
      through the `Aspect.getReduxStore()` method.  This provides direct
@@ -679,17 +692,19 @@ implemented)_ is intended to address this issue.
 
 
 <!--- redux ---> 
+
 [redux]:            https://redux.js.org/
-[redux store]:      https://redux.js.org/docs/api/Store.html
-[store]:            https://redux.js.org/docs/api/Store.html
-[redux middleware]: https://redux.js.org/docs/advanced/Middleware.html
-[actions]:          https://redux.js.org/docs/basics/Actions.html
-[action creators]:  https://redux.js.org/docs/basics/Actions.html#action-creators
-[reducers]:         https://redux.js.org/docs/basics/Reducers.html
-[reducer]:          https://redux.js.org/docs/basics/Reducers.html
+[redux store]:      https://redux.js.org/glossary#store
+[store]:            https://redux.js.org/glossary#store
+[redux middleware]: https://redux.js.org/glossary#middleware
+[redux enhancer]:   https://redux.js.org/glossary#store-enhancer
+[actions]:          https://redux.js.org/glossary#action
+[action creators]:  https://redux.js.org/glossary#action-creator
+[reducers]:         https://redux.js.org/glossary#reducer
+[reducer]:          https://redux.js.org/glossary#reducer
 [selectors]:        https://gist.github.com/abhiaiyer91/aaf6e325cf7fc5fd5ebc70192a1fa170
-[`connect()`]:      https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options
-[`<Provider>`]:     https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
+[`connect()`]:      https://github.com/reduxjs/react-redux/blob/master/docs/using-react-redux/connect-extracting-data-with-mapStateToProps.md
+[`<Provider>`]:     https://github.com/reduxjs/react-redux/blob/master/docs/api/Provider.md
 
 <!--- redux-logic ---> 
 [redux-logic]:      https://github.com/jeffbski/redux-logic
