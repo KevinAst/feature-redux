@@ -71,6 +71,12 @@ UNRELEASED *********************************************************************
 
 **NOTE**: ?? This release contains **breaking changes** from prior
 releases.  _A retrofit of client code is necessary_.
+?? This release does in fact introduce breaking changes (due to a new version of peer dependency feature-u - also v3.0.0).
+
+- Pardon the version bump (from v1.0.1 to v3.0.0).
+  We skipped v2 strictly as an internal management convenience - to
+  match the required peer dependency of feature-u _(which is also
+  v3.0.0)_.
 
 - **More**: ??
 
