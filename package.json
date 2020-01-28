@@ -1,6 +1,6 @@
 {
   "name": "feature-redux",
-  "version": "1.0.1",
+  "version": "3.0.0",
   "description": "feature-u redux integration",
   "main": "lib/index.js",
   "browser": {

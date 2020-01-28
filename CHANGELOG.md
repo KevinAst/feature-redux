@@ -9,16 +9,17 @@ and **contains migration instructions**.
 
 ## Summary:
 
-Release  | What                                            | *When*
----------|-------------------------------------------------|------------------
-[v1.0.1] | Address Security Alerts                         | *December 10, 2019*
-[v1.0.0] | feature-u V1 Integration                        | *August 14, 2018*
-[v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
-[v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
-[v0.1.1] | react-native android patch                      | *March 7, 2018*
-[v0.1.0] | Initial Release                                 | *March 6, 2018*
+Release  | What                                                     | *When*
+---------|----------------------------------------------------------|------------------
+[v3.0.0] | Redux Enhancer Injection and Aspect Plugin Changes       | *January, xx, 2020*
+[v1.0.1] | Address Security Alerts                                  | *December 10, 2019*
+[v1.0.0] | feature-u V1 Integration                                 | *August 14, 2018*
+[v0.1.3] | Establish Polyfill Strategy                              | *July 2, 2018*
+[v0.1.2] | Auto Redux DevTools Integration                          | *March 29, 2018*
+[v0.1.1] | react-native android patch                               | *March 7, 2018*
+[v0.1.0] | Initial Release                                          | *March 6, 2018*
 
-
+[v3.0.0]: #v300---redux-enhancer-injection-and-aspect-plugin-changes-january-xx-2020
 [v1.0.1]: #v101---address-security-alerts-december-10-2019
 [v1.0.0]: #v100---feature-u-v1-integration-august-14-2018
 [v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
@@ -54,6 +55,28 @@ RUNNING CONTENT (pop out as needed) ...
   **Internal**:   ... internal change NOT affecting user/client
 
 UNRELEASED ******************************************************************************** -->
+
+
+<!-- *** RELEASE *************************************************************** -->
+
+## v3.0.0 - Redux Enhancer Injection and Aspect Plugin Changes *(January, xx, 2020)*
+
+[GitHub Content](https://github.com/KevinAst/feature-redux/tree/v3.0.0)
+&bull;
+[GitHub Release](https://github.com/KevinAst/feature-redux/releases/tag/v3.0.0)
+&bull;
+[Diff](https://github.com/KevinAst/feature-redux/compare/v1.0.1...v3.0.0)
+
+**NOTE**: ?? This release is a **non-breaking change** _(i.e. no API was affected)_.
+
+**NOTE**: ?? This release contains **breaking changes** from prior
+releases.  _A retrofit of client code is necessary_.
+
+- **More**: ??
+
+- **Security**: ?? Address potential security vulnerabilities in
+  dependent libs (mostly devDependencies completely unrelated to
+  deployment)!
 
 
 <!-- *** RELEASE *************************************************************** -->
