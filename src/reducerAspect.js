@@ -247,6 +247,20 @@ function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
   // auto configure Redux DevTools (when detected)
   const {enhancer$, compose$} = this.reduxDevToolHook$();
 
+  // ?? original @sylvainlg accumulation:
+  //? if (enhancer$) {
+  //?   enhancerArr.push(enhancer$);
+  //? }
+  //? const enhancers = [];
+  //? if (middlewareArr.length > 0) {
+  //?   enhancers.push(applyMiddleware(...middlewareArr));
+  //? }
+  //? if (enhancerArr.length > 0) {
+  //?   enhancers.push(...enhancerArr);
+  //? }
+  //? console.log(`?? reducerAspect.js ... creating store WITH original @sylvainlg accumulation ... enhancers: `, enhancers); // eslint-disable-line no-console
+
+  // ?? newly refined accumulation:
   // define the redux enhancers (if any) that feed into our createStore() invocation
   const enhancers = [];
   // ... middlewareArr: apply enhancer for middleware supplied by other Aspect Plugins
@@ -261,12 +275,30 @@ function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
   if (enhancer$) {
     enhancers.push(enhancer$);
   }
+  console.log(`?? reducerAspect.js ... creating store WITH refined accumulation ... enhancers: `, enhancers); // eslint-disable-line no-console
 
   // define our Redux app-wide store WITH optional middleware/enhancer registration
   // NOTE: passing enhancer as last argument requires redux@>=3.1.0
+  console.log(`?? reducerAspect.js ... try NOT specifying 2nd param: preloadedState ... ERRORS OUT :-(`); // eslint-disable-line no-console
   return enhancers.length === 0
           ? createStore(appReducer)
           : createStore(appReducer, compose$(enhancers));
+
+  //? console.log(`?? reducerAspect.js ... try specifying 2nd param: preloadedState ... ERRORS OUT :-(`); // eslint-disable-line no-console
+  //? return enhancers.length === 0
+  //?         ? createStore(appReducer)
+  //?         : createStore(appReducer, undefined, compose$(enhancers));
+
+  //? console.log(`?? reducerAspect.js ... creating store WITHOUT enhancers ... back to the original ... WORKS :-)`); // eslint-disable-line no-console
+  //? return middlewareArr.length === 0
+  //?         ? createStore(appReducer, enhancer$)
+  //?         : createStore(appReducer, compose$(applyMiddleware(...middlewareArr)));
+
+  //? console.log(`?? reducerAspect.js ... try removing Redux Dev Tools from the mix, using standard compose ... ERRORS OUT :-(`); // eslint-disable-line no-console
+  //? return enhancers.length === 0
+  //?         ? createStore(appReducer)
+  //?         : createStore(appReducer, undefined, compose(enhancers));
+
 }
 
 
