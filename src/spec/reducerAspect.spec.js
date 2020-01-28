@@ -85,7 +85,7 @@ describe('reducerAspect() tests', () => {
   });
 
 
-  describe('insure assembleAspectResources() enhance accumulation handles all 3 scenarios', () => {
+  describe('insure assembleAspectResources() enhancer accumulation handles all 3 scenarios', () => {
 
     const aspects = [ // here are the 3 scenarios
       createAspect$({
@@ -120,6 +120,27 @@ describe('reducerAspect() tests', () => {
       reducerAspect.assembleAspectResources('simulated fassets', aspects);
       expect(reducerAspect.appStore)
         .toEqual(['simulated enhancer']);
+    });
+  });
+
+
+  describe('insure createReduxStore$() works correctly with enhancers', () => {
+
+    const dummyReducerEnhancer = createStore => (
+      reducer,
+      initialState,
+      enhancer
+    ) => {
+      const dummyReducer = (state, action) => {
+        const newState = reducer(state, action);
+        return newState;
+      };
+      return createStore(dummyReducer, initialState, enhancer);
+    };
+
+    test('perform the test', () => {
+      const store = reducerAspect.config.createReduxStore$(state => state, [], [dummyReducerEnhancer]);
+      expect(store).toBeInstanceOf(Object);
     });
   });
 

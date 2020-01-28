@@ -262,7 +262,7 @@ function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
   // NOTE: passing enhancer as last argument requires redux@>=3.1.0
   return enhancers.length === 0
     ? createStore(appReducer)
-    : createStore(appReducer, compose$(enhancers));
+    : createStore(appReducer, undefined, compose$(...enhancers));
 
 }
 
