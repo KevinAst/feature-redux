@@ -552,12 +552,18 @@ specified by your features.
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
-`API: createReducerAspect([name='reducer']): reducerAspect`
+`API: createReducerAspect({[name='reducer']}): reducerAspect`
 
 The `reducerAspect` is the [feature-u] plugin that facilitates
 [redux] integration to your features.
 
-To use this aspect:
+**PARAMS**: _(**Please Note**: only named parameters are used)_
+
+- **name**: The name of this reducer (defaults to 'reducer')
+
+- ?? more
+
+**USAGE**:
 
 - Within your mainline, register the **feature-redux**
   `reducerAspect` to **feature-u**'s [`launchApp()`].

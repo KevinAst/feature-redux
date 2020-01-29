@@ -22,13 +22,32 @@ describe('reducerAspect() tests', () => {
 
   describe('validate createReducerAspect() parameter violation', () => {
 
+    expect( () => createReducerAspect() )
+      .not.toThrow(); // all default params is acceptable
+
     expect( () => createReducerAspect(null) )
-      .toThrow(/name is required/);
-    // THROW: createReducerAspect() parameter violation: name is required
+      .toThrow(/only named parameters may be supplied/);
+    // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
 
     expect( () => createReducerAspect(123) )
+      .toThrow(/only named parameters may be supplied/);
+    // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+
+    expect( () => createReducerAspect('myName BUT NOT positional :-(') )
+      .toThrow(/only named parameters may be supplied/);
+    // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+
+    expect( () => createReducerAspect({name: 123}) )
       .toThrow(/name must be a string/);
     // THROW: createReducerAspect() parameter violation: name must be a string
+
+    expect( () => createReducerAspect({name: 'myName', badParam1: 123, badParm2: 456}) )
+      .toThrow(/unrecognized named parameter.*badParam1.*badParm2/);
+    // THROW: createReducerAspect() parameter violation: unrecognized named parameter(s): badParam1,badParm2
+
+    expect( () => createReducerAspect({name: 'myName'}, 'badPositional') )
+      .toThrow(/unrecognized positional parameters.*only named parameters can be specified.*2 arguments were supplied/);
+    // THROW: createReducerAspect() parameter violation: unrecognized positional parameters (only named parameters can be specified) ... 2 arguments were supplied
 
   });
 
