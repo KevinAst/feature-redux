@@ -41,6 +41,19 @@ describe('reducerAspect() tests', () => {
       .toThrow(/name must be a string/);
     // THROW: createReducerAspect() parameter violation: name must be a string
 
+    expect( () => createReducerAspect({allowNoReducers: 123}) )
+      .toThrow(/allowNoReducers must be a boolean OR an app-wide reducer/);
+    // THROW: createReducerAspect() parameter violation: allowNoReducers must be a boolean OR an app-wide reducer function
+
+    expect( () => createReducerAspect({allowNoReducers: false}) )
+      .not.toThrow(); // boolean false OK
+
+    expect( () => createReducerAspect({allowNoReducers: false}) )
+        .not.toThrow(); // boolean true OK
+
+    expect( () => createReducerAspect({allowNoReducers: (p) => p}) )
+          .not.toThrow(); // reducer function OK
+
     expect( () => createReducerAspect({name: 'myName', badParam1: 123, badParm2: 456}) )
       .toThrow(/unrecognized named parameter.*badParam1.*badParm2/);
     // THROW: createReducerAspect() parameter violation: unrecognized named parameter(s): badParam1,badParm2

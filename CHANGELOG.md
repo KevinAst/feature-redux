@@ -89,6 +89,11 @@ code is necessary_!
 - **Changed**: the `createReducerAspect()` creator function now
   accepts only named parameters ... see [API](./README.md#reduceraspect-aspect)
 
+- **Added**: a new `allowNoReducers` parameter was introduced, in the
+  `createReducerAspect()` creator function, that directs what happens
+  when no reducers were specified on your features ... see
+  [API](./README.md#reduceraspect-aspect)
+
 - **More**: ??
 
 - **Added**: ?? The **feature-redux** Aspect now promotes the

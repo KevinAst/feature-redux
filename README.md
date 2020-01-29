@@ -516,34 +516,36 @@ this process (_i.e. the inputs and outputs_) are documented here.
 
 ### Error Conditions
 
-When **feature-redux** detects that no reducers have been
-specified by any of your features, it will (by default) throw the
-following exception:
+- **NO REDUCERS**:
 
-```
-***ERROR*** feature-redux found NO reducers within your features
-            ... did you forget to register Feature.reducer aspects in your features?
-            (please refer to the feature-redux docs to see how to override this behavior).
-```
+  When **feature-redux** detects that no reducers have been
+  specified by any of your features, it will (by default) throw the
+  following exception:
 
-Most likely this should in fact be considered an error _(for example
-you neglected to specify the reducer aspects within your features)_.
-**The reasoning is**: _why would you not specify any reducers if your
-using redux?_
+  ```
+  ***ERROR*** feature-redux found NO reducers within your features
+              ... did you forget to register Feature.reducer aspects in your features?
+              (please refer to the feature-redux docs to see how to override this behavior).
+  ```
 
-You can change this behavior through the following configuration:
+  Most likely this should in fact be considered an error _(for example
+  you neglected to specify the reducer aspects within your features)_.
+  **The reasoning is**: _why would you not specify any reducers if your
+  using redux?_
 
-```js
-reducerAspect.config.allowNoReducers$ = true;
-```
+  You can change this behavior through the `allowNoReducers` parameter:
 
-With this option enabled, when no reducers are found, redux will be
-configured with an identity reducer (accompanied with a WARNING
-logging probe).
+  ```js
+  createReducerAspect({allowNoReducers: true})
+  ```
 
-You can also specify your own reducer function in place of the `true`
-value, which will be used ONLY in the scenario where no reducers were
-specified by your features.
+  - when `true`, and no reducers are found, redux will be configured
+    with an identity reducer (accompanied with a WARNING logging
+    probe).
+
+  - you can also specify your own app-wide reducer function in place
+    of the `true` value, which will be used ONLY in the scenario where
+    no reducers were specified by your features.
 
 
 ## API
@@ -552,7 +554,7 @@ specified by your features.
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
-`API: createReducerAspect({[name='reducer']}): reducerAspect`
+`API: createReducerAspect({name:'reducer', allowNoReducers:false}): reducerAspect`
 
 The `reducerAspect` is the [feature-u] plugin that facilitates
 [redux] integration to your features.
@@ -561,7 +563,11 @@ The `reducerAspect` is the [feature-u] plugin that facilitates
 
 - **name**: The name of this reducer (defaults to 'reducer')
 
-- ?? more
+- **allowNoReducers**: A boolean -or- app-wide reducer function, that
+  specifies what to do when **no reducers** are found in any or your
+  features (defaults to `false` which throws an error) ... see: **NO
+  REDUCERS** section of [Error Conditions](#error-conditions)
+
 
 **USAGE**:
 

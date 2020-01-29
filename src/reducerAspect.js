@@ -18,8 +18,9 @@ const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect:
 
 // NOTE: See README for complete description
 export default function createReducerAspect(namedParams={}) {
-/* see oops below
+/* see "oops" below
 export default function createReducerAspect({name='reducer',
+                                             allowNoReducers=false,
                                              ...unknownArgs}={}) {
 */
 
@@ -31,12 +32,18 @@ export default function createReducerAspect({name='reducer',
 
   // ... oops: my project doesn't have the proper babel configuration to support destructuring
   //           FOR NOW: do by hand :-(
-  const unknownArgKeys = Object.keys(namedParams).filter( (param) => !(param==='name' || param==='??more here') );
-  const name = namedParams.name || 'reducer';
+  const unknownArgKeys = Object.keys(namedParams).filter( (param) => !(param==='name' || param==='allowNoReducers') );
+  const name            = namedParams.name            || 'reducer';
+  const allowNoReducers = namedParams.allowNoReducers || false;
 
   // ... name
   check(name,            'name is required');
   check(isString(name),  'name must be a string');
+
+  // ... allowNoReducers
+  check( (allowNoReducers===true  ||
+          allowNoReducers===false ||
+          isFunction(allowNoReducers)), 'allowNoReducers must be a boolean OR an app-wide reducer function');
 
   // ... unrecognized named parameter
   check(unknownArgKeys.length === 0,  `unrecognized named parameter(s): ${unknownArgKeys}`);
@@ -57,9 +64,9 @@ export default function createReducerAspect({name='reducer',
     getReduxStore,
     injectRootAppElm,
     config: {
-      allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}] ?? should be in constructor
-      createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
-      reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
+      allowNoReducers$: allowNoReducers, // PUBLIC: client override to: true || [{reducerFn}]
+      createReduxStore$,  // HIDDEN: createReduxStore$(appReducer, middlewareArr, enhancerArr): appStore
+      reduxDevToolHook$,  // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
     },
   });
   return reducerAspect;
@@ -401,7 +408,7 @@ function injectRootAppElm(fassets, curRootAppElm) {
  *
  * @return {appReducerFn} a top-level app reducer function.
  */
-export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=null) { // ... named export ONLY used in testing
+export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$) { // ... named export ONLY used in testing
 
   // iterated over all activeFeatures,
   // ... generating the "shaped" genesis structure
