@@ -244,81 +244,79 @@ function assembleAspectResources(fassets, aspects) {
  * @private
  */
 function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
-  // auto configure Redux DevTools (when detected)
-  const {enhancer$, compose$} = this.reduxDevToolHook$();
 
-  // ?? original @sylvainlg accumulation:
-  //? if (enhancer$) {
-  //?   enhancerArr.push(enhancer$);
-  //? }
-  //? const enhancers = [];
-  //? if (middlewareArr.length > 0) {
-  //?   enhancers.push(applyMiddleware(...middlewareArr));
-  //? }
-  //? if (enhancerArr.length > 0) {
-  //?   enhancers.push(...enhancerArr);
-  //? }
-  //? console.log(`?? reducerAspect.js ... creating store WITH original @sylvainlg accumulation ... enhancers: `, enhancers); // eslint-disable-line no-console
-
-  // ?? newly refined accumulation:
-  // define the redux enhancers (if any) that feed into our createStore() invocation
+  // collect all redux enhancers (if any)
   const enhancers = [];
   // ... middlewareArr: apply enhancer for middleware supplied by other Aspect Plugins
   if (middlewareArr.length > 0) {
     enhancers.push(applyMiddleware(...middlewareArr));
   }
-  // ... enhancerArr: apply enhancers supplied by other Aspect Plugins (i.e. self's param)
+  // ... enhancerArr: apply enhancers supplied by other Aspect Plugins
   if (enhancerArr.length > 0) {
     enhancers.push(...enhancerArr);
   }
-  // ... enhancer$ apply enhancer optionally defined by Redux Dev Tools (when installed in browser)
-  if (enhancer$) {
-    enhancers.push(enhancer$);
-  }
-  console.log(`?? reducerAspect.js ... creating store WITH refined accumulation ... enhancers: `, enhancers); // eslint-disable-line no-console
 
-  // define our Redux app-wide store WITH optional middleware/enhancer registration
+  // define artifacts that automatically embellish Redux DevTools (when detected)
+  // ... used mutually exclusively (see JavaDocs)
+  const {enhancer$, compose$} = this.reduxDevToolHook$();
+
+  // finally - the complete enhancer that encompasses any/all middleware/enhancers
+  const enhancer = enhancers.length === 0 ? enhancer$ : compose$(...enhancers);
+
+  // define our Redux app-wide store
   // NOTE: passing enhancer as last argument requires redux@>=3.1.0
-  console.log(`?? reducerAspect.js ... try NOT specifying 2nd param: preloadedState ... ERRORS OUT :-(`); // eslint-disable-line no-console
-  return enhancers.length === 0
-          ? createStore(appReducer)
-          : createStore(appReducer, compose$(enhancers));
-
-  //? console.log(`?? reducerAspect.js ... try specifying 2nd param: preloadedState ... ERRORS OUT :-(`); // eslint-disable-line no-console
-  //? return enhancers.length === 0
-  //?         ? createStore(appReducer)
-  //?         : createStore(appReducer, undefined, compose$(enhancers));
-
-  //? console.log(`?? reducerAspect.js ... creating store WITHOUT enhancers ... back to the original ... WORKS :-)`); // eslint-disable-line no-console
-  //? return middlewareArr.length === 0
-  //?         ? createStore(appReducer, enhancer$)
-  //?         : createStore(appReducer, compose$(applyMiddleware(...middlewareArr)));
-
-  //? console.log(`?? reducerAspect.js ... try removing Redux Dev Tools from the mix, using standard compose ... ERRORS OUT :-(`); // eslint-disable-line no-console
-  //? return enhancers.length === 0
-  //?         ? createStore(appReducer)
-  //?         : createStore(appReducer, undefined, compose(enhancers));
-
+  return createStore(appReducer, enhancer);
 }
 
 
 /**
- * Auto detect Redux Dev Tools when installed in browser.
+ * Auto detect Redux Dev Tools when installed/enabled in browser.
  *
  * NOTE: It's OK to use Redux Dev Tools in production: http://bit.ly/rdtOkForProd
  *
  * @return  {enhancer$, compose$} to be used in creating redux store.
  *
+ * These items are to be used mutually exclusively!
+ *
+ * - enhancer$: a pre-defined enhancer representing ReduxDevTools
+ *              - to be used when NO OTHER enhancers are present
+ *              - will be `undefined` when ReduxDevTools is undetected
+ *                ... which is ALSO a VALID param to createStore()
+ * 
+ * - compose$: an enhancer compose function that AUTO INCLUDES ReduxDevTools
+ *             - to be used when ADDITIONAL enhancers are present
+ *             - reverts to the "standard" enhancer compose function
+ *               when ReduxDevTools NOT installed/enabled
+ *
  * @private
  */
 function reduxDevToolHook$() {
-  const win       = window || {}; // no-op in non-browser env (i.e. react-native)
-  const extension = win.__REDUX_DEVTOOLS_EXTENSION__;
+  // apply empty object (that no-ops) when in non-browser env
+  // ... react-native, or SSR (Server Side Rendering), etc.
+  const win = window || {};
+
+  // a function returning a pre-defined enhancer which IS the ReduxDevTools
+  // ... undefined when ReduxDevTools not installed/enabled 
+  const extension = win.__REDUX_DEVTOOLS_EXTENSION__; 
+
+  // a pre-defined enhancer representing ReduxDevTools
+  // ... undefined when ReduxDevTools not installed/enabled
+  //     NOTE: undefined can be passed into createStore
+  //           representing NO enhancers
   const enhancer$ = extension && extension();
+
+  // an enhancer compose function that AUTO INCLUDES ReduxDevTools
+  // ... OR the or the "standard" enhancer compose function
+  //     when ReduxDevTools NOT installed/enabled
   const compose$  = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+  // report when ReduxDevTools is active
   if (extension) {
-    logf.force('reduxDevToolHook$() hooking into  Redux DevTools (installed in your browser)');
+    logf.force('createReduxStore$() hooking into  Redux DevTools (installed in your browser)');
   }
+
+  // expose ReduxDevTools adornments (see comments above)
+  // ... NOTE: these resources are used mutually exclusively
   return {enhancer$, compose$};
 }
 

@@ -38,7 +38,7 @@ describe('reducerAspect() tests', () => {
     expect(reducerAspect.appStore)
       .toBe(undefined);
 
-    // NOTE: don't undersand this ... for some reason adding test to the process causes it NOT to throw
+    // NOTE: don't understand this ... for some reason adding test to the process causes it NOT to throw
     expect( () => reducerAspect.getReduxStore() )
       .toThrow(/reducerAspect.getReduxStore.*can only be called after a successful launchApp/);
     // THROW: ***ERROR*** feature-redux reducerAspect.getReduxStore() can only be called after a successful launchApp() execution
@@ -58,7 +58,7 @@ describe('reducerAspect() tests', () => {
       }),
       createAspect$({
         name: 'aspectWithMiddleware',
-        getReduxMiddleware: () => 'simulated midleware',
+        getReduxMiddleware: () => 'simulated middleware',
       }),
     ];
 
@@ -69,7 +69,7 @@ describe('reducerAspect() tests', () => {
         // simulate createStore ... just pass back the middlewareArr to be tested
         return middlewareArr;
       };
-      launchApp.diag.logf.enable(); // excercise logs (to insure there is NO coding bugs)
+      launchApp.diag.logf.enable(); // exercise logs (to insure there is NO coding bugs)
     });      
     afterEach(() => {
       // reset everything back to original
@@ -80,12 +80,12 @@ describe('reducerAspect() tests', () => {
     test('perform the test', () => {
       reducerAspect.assembleAspectResources('simulated fassets', aspects);
       expect(reducerAspect.appStore)
-        .toEqual(['simulated midleware']);
+        .toEqual(['simulated middleware']);
     });
   });
 
 
-  describe('insure assembleAspectResources() enhance accumulation handles all 3 scenarios', () => {
+  describe('insure assembleAspectResources() enhancer accumulation handles all 3 scenarios', () => {
 
     const aspects = [ // here are the 3 scenarios
       createAspect$({
@@ -108,7 +108,7 @@ describe('reducerAspect() tests', () => {
         // simulate createStore ... just pass back the enhancerArr to be tested
         return enhancerArr;
       };
-      launchApp.diag.logf.enable(); // excercise logs (to insure there is NO coding bugs)
+      launchApp.diag.logf.enable(); // exercise logs (to insure there is NO coding bugs)
     });
     afterEach(() => {
       // reset everything back to original
@@ -120,6 +120,29 @@ describe('reducerAspect() tests', () => {
       reducerAspect.assembleAspectResources('simulated fassets', aspects);
       expect(reducerAspect.appStore)
         .toEqual(['simulated enhancer']);
+    });
+  });
+
+  // NOTE: introduced by @sylvainlg
+  describe('insure createReduxStore$() succeeds error with enhancers', () => {
+
+    // our single enhancer
+    const dummyReducerEnhancer = (createStore) => (reducer,
+                                                   initialState,
+                                                   enhancer) => {
+      const dummyReducer = (state, action) => {
+        const newState = reducer(state, action);
+        return newState;
+      };
+      return createStore(dummyReducer, initialState, enhancer);
+    };
+
+    test('perform the test', () => {
+      // invoke our internal createReduxStore$() with a single enhancer
+      // ... NOTE: this is invoking our real code
+      const store = reducerAspect.config.createReduxStore$(state => state, [], [dummyReducerEnhancer]);
+      // insure it succeeded ... KJB: can't get it to fail - even with missing spread operator (the reason this test was created)
+      expect(store).toBeInstanceOf(Object);
     });
   });
 
