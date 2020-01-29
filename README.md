@@ -554,7 +554,11 @@ this process (_i.e. the inputs and outputs_) are documented here.
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
-`API: createReducerAspect({name:'reducer', allowNoReducers:false}): reducerAspect`
+```
+API: createReducerAspect({name:'reducer',
+                          initialState:undefined,
+                          allowNoReducers:false}): reducerAspect
+```
 
 The `reducerAspect` is the [feature-u] plugin that facilitates
 [redux] integration to your features.
@@ -562,6 +566,17 @@ The `reducerAspect` is the [feature-u] plugin that facilitates
 **PARAMS**: _(**Please Note**: only named parameters are used)_
 
 - **name**: The name of this reducer (defaults to 'reducer')
+
+- **initialState**: An optional pre-loaded state that will become the initial
+  state of your store.  
+
+  Typically this is not needed, because your reducers will define the
+  initial state.
+  However, it can be useful to hydrate the state from the server (in
+  universal apps), or to restore a previously serialized user session.
+
+  When supplied, any validation/errors will be detected by redux, as
+  it is passed directly to it's `createStore()`.
 
 - **allowNoReducers**: A boolean -or- app-wide reducer function, that
   specifies what to do when **no reducers** are found in any or your

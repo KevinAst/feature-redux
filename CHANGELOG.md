@@ -89,10 +89,15 @@ code is necessary_!
 - **Changed**: the `createReducerAspect()` creator function now
   accepts only named parameters ... see [API](./README.md#reduceraspect-aspect)
 
-- **Added**: a new `allowNoReducers` parameter was introduced, in the
-  `createReducerAspect()` creator function, that directs what happens
-  when no reducers were specified on your features ... see
+- **Added**: a new optional `initialState` parameter was introduced
+  _(in the `createReducerAspect()` creator function)_, that provides a
+  pre-loaded initial state of your store ... see
   [API](./README.md#reduceraspect-aspect)
+
+- **Added**: a new optional `allowNoReducers` parameter was introduced
+  _(in the `createReducerAspect()` creator function)_, that directs
+  what happens when no reducers were specified on your features
+  ... see [API](./README.md#reduceraspect-aspect)
 
 - **More**: ??
 

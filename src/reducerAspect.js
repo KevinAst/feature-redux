@@ -20,6 +20,7 @@ const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect:
 export default function createReducerAspect(namedParams={}) {
 /* see "oops" below
 export default function createReducerAspect({name='reducer',
+                                             initialState=undefined,
                                              allowNoReducers=false,
                                              ...unknownArgs}={}) {
 */
@@ -32,9 +33,12 @@ export default function createReducerAspect({name='reducer',
 
   // ... oops: my project doesn't have the proper babel configuration to support destructuring
   //           FOR NOW: do by hand :-(
-  const unknownArgKeys = Object.keys(namedParams).filter( (param) => !(param==='name' || param==='allowNoReducers') );
+  const unknownArgKeys = Object.keys(namedParams).filter( (param) => !(param==='name' || 
+                                                                       param==='initialState' ||
+                                                                       param==='allowNoReducers') );
   const name            = namedParams.name            || 'reducer';
   const allowNoReducers = namedParams.allowNoReducers || false;
+  const initialState    = namedParams.initialState    || undefined;
 
   // ... name
   check(name,            'name is required');
@@ -44,6 +48,8 @@ export default function createReducerAspect({name='reducer',
   check( (allowNoReducers===true  ||
           allowNoReducers===false ||
           isFunction(allowNoReducers)), 'allowNoReducers must be a boolean OR an app-wide reducer function');
+
+  // ... initialState ... validated by redux directly (simply a pass through)
 
   // ... unrecognized named parameter
   check(unknownArgKeys.length === 0,  `unrecognized named parameter(s): ${unknownArgKeys}`);
@@ -65,6 +71,7 @@ export default function createReducerAspect({name='reducer',
     injectRootAppElm,
     config: {
       allowNoReducers$: allowNoReducers, // PUBLIC: client override to: true || [{reducerFn}]
+      initialState$:    initialState,    // PUBLIC: client pass-through to redux
       createReduxStore$,  // HIDDEN: createReduxStore$(appReducer, middlewareArr, enhancerArr): appStore
       reduxDevToolHook$,  // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
     },
@@ -245,7 +252,7 @@ function assembleAspectResources(fassets, aspects) {
   // create our redux store (retained in self for subsequent usage)
   // ... accomplished in internal config micro function (a defensive measure to allow easier overriding by client)
   logf(`assembleAspectResources() defining our Redux store WITH optional middleware and enhancer registration`);
-  this.appStore = this.config.createReduxStore$(this.appReducer, middleware, enhancer); // ?? invocation
+  this.appStore = this.config.createReduxStore$(this.appReducer, middleware, enhancer);
 }
 
 
@@ -293,7 +300,8 @@ function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
 
   // define our Redux app-wide store
   // NOTE: passing enhancer as last argument requires redux@>=3.1.0
-  return createStore(appReducer, enhancer); // ?? add 2nd param this.initialState$
+  return createStore(appReducer, this.initialState$, enhancer);
+
 }
 
 
