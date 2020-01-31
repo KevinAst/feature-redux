@@ -86,6 +86,18 @@ code is necessary_!
   Please refer to the "Enhancer Integration"
   [Inputs](./README.md#inputs) section for more information.
 
+- **Added**: This Aspect Plugin now promotes the redux
+  `getState`/`dispatch` functions in the namedParams of
+  **feature-u**'s Application Life Cycle Hooks ... see [Interface
+  Points / Exposure](./README.md#exposure)
+
+  Previously, these parameters were promoted directly by
+  **feature-u**, but that coupling has been removed in favor of a new
+  internal mechanism allowing any Aspect to inject their namedParams.
+
+  As a result, if you are using **feature-u** V3 or greater, you must
+  upgrade to **feature-redux** V3 or greater!
+
 - **Changed**: the `createReducerAspect()` creator function now
   accepts only named parameters ... see [API](./README.md#reduceraspect-aspect)
 

@@ -167,7 +167,8 @@ Polyfills](#potential-need-for-polyfills))_.
 
 **Well that was easy!!** At this point **redux** is **completely setup
 for your application!** The [redux store] has been created and is
-accessible through the standard **redux** [`connect()`] function.
+accessible through the standard **redux** [`connect()`] HoC,
+or the newer [`Hooks`] API.
 
 In the nutshell, that's a highlight of most everything you need to know to use
 **feature-redux**!  _Go forth and compute!_
@@ -175,11 +176,11 @@ In the nutshell, that's a highlight of most everything you need to know to use
 
 ## A Closer Look
 
-**feature-redux** automatically configures [redux] by creating the [store]
-_(accumulating feature [reducers] across your app)_, and making the
-[store] available through the standard **redux** [`connect()`] function,
-_(by injecting the standard **redux** [`<Provider>`] component at the root
-of your app)_.
+**feature-redux** automatically configures [redux] by creating the
+[store] _(accumulating feature [reducers] across your app)_, and
+making the [store] available through the standard **redux**
+[`connect()`] HoC (or the newer [`Hooks`] API), _(by injecting the
+standard **redux** [`<Provider>`] component at the root of your app)_.
 
 It is important to understand that your interface to [redux] has not
 changed in any way.  In other words, you continue to use [redux] the
@@ -489,22 +490,29 @@ this process (_i.e. the inputs and outputs_) are documented here.
    app is by injecting the standard **redux** [`<Provider>`] component at
    the root of your application DOM.  This enables app component
    access to the [redux store] (along with it's `dispatch()` and
-   `getState()`) through the standard **redux** [`connect()`] function.
+   `getState()`) through the standard **redux** [`connect()`] HoC,
+   or the newer [`Hooks`] API.
 
-2. **Redux Middleware**:
+2. **Application Life Cycle Hooks - namedParams**:
+
+   **feature-redux** promotes the redux `getState`/`dispatch`
+   functions as namedParams of **feature-u**'s [Application Life Cycle
+   Hooks].
+
+3. **Redux Middleware**:
 
    Because **feature-redux** allows other aspects to inject their
    [redux middleware], whatever that middleware exposes is made
    available.  As an example, the [feature-redux-logic] Aspect
    injects **redux-logic**.
 
-3. **Redux Enhancer**:
+4. **Redux Enhancer**:
 
    Because **feature-redux** allows other aspects to inject their
    [redux enhancer], whatever that enhancer exposes is made
    available.
    
-4. **Other**:
+5. **Other**:
 
    - For good measure, **feature-redux** promotes the [redux store]
      through the `Aspect.getReduxStore()` method.  This provides direct
@@ -730,8 +738,9 @@ implemented)_ is intended to address this issue.
 [reducers]:         https://redux.js.org/glossary#reducer
 [reducer]:          https://redux.js.org/glossary#reducer
 [selectors]:        https://gist.github.com/abhiaiyer91/aaf6e325cf7fc5fd5ebc70192a1fa170
-[`connect()`]:      https://github.com/reduxjs/react-redux/blob/master/docs/using-react-redux/connect-extracting-data-with-mapStateToProps.md
-[`<Provider>`]:     https://github.com/reduxjs/react-redux/blob/master/docs/api/Provider.md
+[`connect()`]:      https://react-redux.js.org/api/connect
+[`Hooks`]:          https://react-redux.js.org/api/hooks
+[`<Provider>`]:     https://react-redux.js.org/api/provider
 
 <!--- redux-logic ---> 
 [redux-logic]:      https://github.com/jeffbski/redux-logic
@@ -739,3 +748,4 @@ implemented)_ is intended to address this issue.
 <!--- 3rd party action managers ---> 
 [action-u]:         https://action-u.js.org/
 [redux-actions]:    https://github.com/reduxactions/redux-actions
+[Application Life Cycle Hooks]: https://feature-u.js.org/cur/appLifeCycle.html

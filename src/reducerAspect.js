@@ -69,6 +69,7 @@ export default function createReducerAspect({name='reducer',
     assembleAspectResources,
     getReduxStore,
     injectRootAppElm,
+    injectParamsInHooks,
     config: {
       allowNoReducers$: allowNoReducers, // PUBLIC: client override to: true || [{reducerFn}]
       initialState$:    initialState,    // PUBLIC: client pass-through to redux
@@ -396,6 +397,25 @@ function injectRootAppElm(fassets, curRootAppElm) {
     </Provider>
   );
   // TODO: if an external "feature" changes curRootAppElm to an array, <Provider> can't handle multiple children
+}
+
+
+/**
+ * Promote our redux state/dispatch functions in the namedParams
+ * feature-u's Application Life Cycle Hooks
+ *
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
+ *
+ * @return {plainObject} our redux state/dispatch functions: {getState, dispatch}
+ *
+ * @private
+ */
+function injectParamsInHooks(fassets) {
+  return {
+    getState: this.appStore.getState,
+    dispatch: this.appStore.dispatch
+  };
 }
 
 
