@@ -98,18 +98,21 @@ code is necessary_!
   As a result, if you are using **feature-u** V3 or greater, you must
   upgrade to **feature-redux** V3 or greater!
 
-- **Changed**: the `createReducerAspect()` creator function now
+- **Changed**: The `createReducerAspect()` creator function now
   accepts only named parameters ... see [API](./README.md#reduceraspect-aspect)
 
-- **Added**: a new optional `initialState` parameter was introduced
+- **Added**: A new optional `initialState` parameter was introduced
   _(in the `createReducerAspect()` creator function)_, that provides a
   pre-loaded initial state of your store ... see
   [API](./README.md#reduceraspect-aspect)
 
-- **Added**: a new optional `allowNoReducers` parameter was introduced
+- **Added**: A new optional `allowNoReducers` parameter was introduced
   _(in the `createReducerAspect()` creator function)_, that directs
   what happens when no reducers were specified on your features
   ... see [API](./README.md#reduceraspect-aspect)
+
+- **Internal**: All initialization/validation was moved from the
+  genesis() hook into our constructor.
 
 - **More**: ??
 

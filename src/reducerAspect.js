@@ -58,13 +58,24 @@ export default function createReducerAspect(namedParams={}) {
   // ... initialState ... validated by redux directly (simply a pass through)
 
 
+
+  // ***
+  // *** Initialization: register feature-redux proprietary Aspect APIs
+  // ***
+
+  logf('createReducerAspect(): registering feature-redux proprietary Aspect APIs: getReduxStore(), getReduxMiddleware(), and getReduxEnhancer()');
+
+  extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
+  extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
+  extendAspectProperty('getReduxEnhancer', 'feature-redux');   // Aspect.getReduxEnhancer(): StoreEnhancer
+
+
   // ***
   // *** create/promote our new aspect
   // ***
 
   const reducerAspect = createAspect({
     name,
-    genesis,
     validateFeatureContent,
     expandFeatureContent,
     assembleFeatureContent,
@@ -80,30 +91,6 @@ export default function createReducerAspect(namedParams={}) {
     },
   });
   return reducerAspect;
-}
-
-
-/**
- * Register feature-redux proprietary Aspect APIs (required to pass
- * feature-u validation).
- * This must occur early in the life-cycle (i.e. this method) to
- * guarantee the new API is available during feature-u validation.
- *
- * NOTE: To better understand the context in which any returned
- *       validation messages are used, feature-u will prefix them
- *       with: 'launchApp() parameter violation: '
- *
- * @return {string} NONE FOR US ... an error message when self is in an invalid state
- * (falsy when valid).
- *
- * @private
- */
-function genesis() {
-  logf('genesis() registering two new Aspect properties: getReduxStore() -and- getReduxMiddleware()');
-
-  extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
-  extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
-  extendAspectProperty('getReduxEnhancer', 'feature-redux');   // Aspect.getReduxEnhancer(): StoreEnhancer
 }
 
 
