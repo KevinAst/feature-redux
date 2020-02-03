@@ -22,45 +22,67 @@ describe('reducerAspect() tests', () => {
 
   describe('validate createReducerAspect() parameter violation', () => {
 
+    test("()", () => {
     expect( () => createReducerAspect() )
       .not.toThrow(); // all default params is acceptable
+    });
 
-    expect( () => createReducerAspect(null) )
-      .toThrow(/only named parameters may be supplied/);
-    // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    test("null", () => {
+      expect( () => createReducerAspect(null) )
+        .toThrow(/only named parameters may be supplied/);
+      // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    });
 
-    expect( () => createReducerAspect(123) )
-      .toThrow(/only named parameters may be supplied/);
-    // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    test("123", () => {
+      expect( () => createReducerAspect(123) )
+        .toThrow(/only named parameters may be supplied/);
+      // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    });
 
-    expect( () => createReducerAspect('myName BUT NOT positional :-(') )
-      .toThrow(/only named parameters may be supplied/);
-    // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    test("'myName BUT NOT positional :-('", () => {
+      expect( () => createReducerAspect('myName BUT NOT positional :-(') )
+        .toThrow(/only named parameters may be supplied/);
+      // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    });
 
-    expect( () => createReducerAspect({name: 123}) )
-      .toThrow(/name must be a string/);
-    // THROW: createReducerAspect() parameter violation: name must be a string
+    test("{name: 123}", () => {
+      expect( () => createReducerAspect({name: 123}) )
+        .toThrow(/name must be a string/);
+      // THROW: createReducerAspect() parameter violation: name must be a string
+    });
 
-    expect( () => createReducerAspect({allowNoReducers: 123}) )
-      .toThrow(/allowNoReducers must be a boolean OR an app-wide reducer/);
-    // THROW: createReducerAspect() parameter violation: allowNoReducers must be a boolean OR an app-wide reducer function
+    test("{allowNoReducers: 123}", () => {
+      expect( () => createReducerAspect({allowNoReducers: 123}) )
+        .toThrow(/reducer.*allowNoReducers must be a boolean OR an app-wide reducer/);
+      // THROW: createReducerAspect() parameter violation: allowNoReducers must be a boolean OR an app-wide reducer function
+    });
 
-    expect( () => createReducerAspect({allowNoReducers: false}) )
-      .not.toThrow(); // boolean false OK
+    test("{allowNoReducers: false}", () => {
+      expect( () => createReducerAspect({allowNoReducers: false}) )
+        .not.toThrow(); // boolean false OK
+    });
 
-    expect( () => createReducerAspect({allowNoReducers: false}) )
+    test("{allowNoReducers: true}", () => {
+      expect( () => createReducerAspect({allowNoReducers: true}) )
         .not.toThrow(); // boolean true OK
+    });
 
-    expect( () => createReducerAspect({allowNoReducers: (p) => p}) )
-          .not.toThrow(); // reducer function OK
+    test("{allowNoReducers: (p) => p}", () => {
+      expect( () => createReducerAspect({allowNoReducers: (p) => p}) )
+        .not.toThrow(); // reducer function OK
+    });
 
-    expect( () => createReducerAspect({name: 'myName', badParam1: 123, badParm2: 456}) )
-      .toThrow(/unrecognized named parameter.*badParam1.*badParm2/);
-    // THROW: createReducerAspect() parameter violation: unrecognized named parameter(s): badParam1,badParm2
+    test("{name: 'myName', badParam1: 123, badParm2: 456}", () => {
+      expect( () => createReducerAspect({name: 'myName', badParam1: 123, badParm2: 456}) )
+        .toThrow(/myName.*unrecognized named parameter.*badParam1.*badParm2/);
+      // THROW: createReducerAspect() parameter violation: unrecognized named parameter(s): badParam1,badParm2
+    });
 
-    expect( () => createReducerAspect({name: 'myName'}, 'badPositional') )
-      .toThrow(/unrecognized positional parameters.*only named parameters can be specified.*2 arguments were supplied/);
-    // THROW: createReducerAspect() parameter violation: unrecognized positional parameters (only named parameters can be specified) ... 2 arguments were supplied
+    test("({name: 'myName'}, 'badPositional')", () => {
+      expect( () => createReducerAspect({name: 'myName'}, 'badPositional') )
+        .toThrow(/myName.*unrecognized positional parameters.*only named parameters can be specified.*2 positional parameters were found/);
+      // THROW: createReducerAspect() parameter violation: name:myName ... unrecognized positional parameters (only named parameters can be specified) ... 2 positional parameters were found
+    });
 
   });
 

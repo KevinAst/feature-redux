@@ -18,48 +18,50 @@ const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect:
 
 // NOTE: See README for complete description
 export default function createReducerAspect(namedParams={}) {
-/* see "oops" below
-export default function createReducerAspect({name='reducer',
-                                             initialState=undefined,
-                                             allowNoReducers=false,
-                                             ...unknownArgs}={}) {
-*/
 
-  // validate parameters
+  // ***
+  // *** validate parameters
+  // ***
+
   const check = verify.prefix('createReducerAspect() parameter violation: ');
 
   // ... namedParams
   check(isPlainObject(namedParams), 'only named parameters may be supplied');
 
-  // ... oops: my project doesn't have the proper babel configuration to support destructuring
-  //           FOR NOW: do by hand :-(
-  const unknownArgKeys = Object.keys(namedParams).filter( (param) => !(param==='name' || 
-                                                                       param==='initialState' ||
-                                                                       param==='allowNoReducers') );
-  const name            = namedParams.name            || 'reducer';
-  const allowNoReducers = namedParams.allowNoReducers || false;
-  const initialState    = namedParams.initialState    || undefined;
+  // descturcture our individual namedParams
+  // ... NOTE: We do this here (rather in the function signature) to have access
+  //           to the overall namedParams variable - for validation purposes!
+  //           Access via the JavaScript implicit `arguments[0]` variable is 
+  //           NOT reliable (in this context) exhibiting a number of quirks :-(
+  const {name='reducer',
+         initialState=undefined,
+         allowNoReducers=false,
+         ...unknownNamedArgs}   = namedParams;
 
-  // ... name
+  // ... name (NOTE: name check takes precedence to facilitate `Aspect.name` identity in subsequent errors :-)
   check(name,            'name is required');
   check(isString(name),  'name must be a string');
+
+  // ... unrecognized positional parameter
+  //     NOTE: when defaulting entire struct, arguments.length is 0
+  check(arguments.length <= 1, `name:${name} ... unrecognized positional parameters (only named parameters can be specified) ... ${arguments.length} positional parameters were found`);
+
+  // ... unrecognized named parameter
+  const unknownArgKeys = Object.keys(unknownNamedArgs);
+  check(unknownArgKeys.length === 0,  `name:${name} ... unrecognized named parameter(s): ${unknownArgKeys}`);
 
   // ... allowNoReducers
   check( (allowNoReducers===true  ||
           allowNoReducers===false ||
-          isFunction(allowNoReducers)), 'allowNoReducers must be a boolean OR an app-wide reducer function');
+          isFunction(allowNoReducers)), `name:${name} ... allowNoReducers must be a boolean OR an app-wide reducer function`);
 
   // ... initialState ... validated by redux directly (simply a pass through)
 
-  // ... unrecognized named parameter
-  check(unknownArgKeys.length === 0,  `unrecognized named parameter(s): ${unknownArgKeys}`);
 
-  // ... unrecognized positional parameter
-  //     NOTE: when defaulting entire struct, arguments.length is 0
-  check(arguments.length <= 1, `unrecognized positional parameters (only named parameters can be specified) ... ${arguments.length} arguments were supplied`);
+  // ***
+  // *** create/promote our new aspect
+  // ***
 
-
-  // create/promote our new aspect
   const reducerAspect = createAspect({
     name,
     genesis,
