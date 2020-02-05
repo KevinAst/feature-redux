@@ -9,16 +9,17 @@ and **contains migration instructions**.
 
 ## Summary:
 
-Release  | What                                            | *When*
----------|-------------------------------------------------|------------------
-[v1.0.1] | Address Security Alerts                         | *December 10, 2019*
-[v1.0.0] | feature-u V1 Integration                        | *August 14, 2018*
-[v0.1.3] | Establish Polyfill Strategy                     | *July 2, 2018*
-[v0.1.2] | Auto Redux DevTools Integration                 | *March 29, 2018*
-[v0.1.1] | react-native android patch                      | *March 7, 2018*
-[v0.1.0] | Initial Release                                 | *March 6, 2018*
+Release  | What                                                     | *When*
+---------|----------------------------------------------------------|------------------
+[v3.0.0] | Redux Enhancer Injection and Aspect Plugin Changes       | *February, 5, 2020*
+[v1.0.1] | Address Security Alerts                                  | *December 10, 2019*
+[v1.0.0] | feature-u V1 Integration                                 | *August 14, 2018*
+[v0.1.3] | Establish Polyfill Strategy                              | *July 2, 2018*
+[v0.1.2] | Auto Redux DevTools Integration                          | *March 29, 2018*
+[v0.1.1] | react-native android patch                               | *March 7, 2018*
+[v0.1.0] | Initial Release                                          | *March 6, 2018*
 
-
+[v3.0.0]: #v300---redux-enhancer-injection-and-aspect-plugin-changes-february-5-2020
 [v1.0.1]: #v101---address-security-alerts-december-10-2019
 [v1.0.0]: #v100---feature-u-v1-integration-august-14-2018
 [v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
@@ -54,6 +55,65 @@ RUNNING CONTENT (pop out as needed) ...
   **Internal**:   ... internal change NOT affecting user/client
 
 UNRELEASED ******************************************************************************** -->
+
+
+<!-- *** RELEASE *************************************************************** -->
+
+## v3.0.0 - Redux Enhancer Injection and Aspect Plugin Changes *(February, 5, 2020)*
+
+[GitHub Content](https://github.com/KevinAst/feature-redux/tree/v3.0.0)
+&bull;
+[GitHub Release](https://github.com/KevinAst/feature-redux/releases/tag/v3.0.0)
+&bull;
+[Diff](https://github.com/KevinAst/feature-redux/compare/v1.0.1...v3.0.0)
+
+**NOTE**: This release contains **minor breaking changes** from prior
+releases ... some API changes, at minimum a new version of the
+**feature-u** peer dependency _(also v3.0.0)_.  _A trivial retrofit of
+client code is necessary_!
+
+- Pardon the version bump (from v1.0.1 to v3.0.0).
+  We skipped v2 strictly as an internal management convenience - to
+  match the required peer dependency of **feature-u** _(which is also
+  v3.0.0)_.
+
+- **Added**: External Aspects may now introduce their own enhancers to
+  the redux store through the `Aspect.getReduxEnhancer()` API _(an
+  "aspect cross-communication mechanism")_ **... thanks
+  [@sylvainlg](https://github.com/sylvainlg)!!**
+  _This similar to how External Aspects have always been able to 
+  introduce their own redux middleware_.
+  Please refer to the "Enhancer Integration"
+  [Inputs](./README.md#inputs) section for more information.
+
+- **Added**: This Aspect Plugin now promotes the redux
+  `getState`/`dispatch` functions in the namedParams of
+  **feature-u**'s Application Life Cycle Hooks ... see [Interface
+  Points / Exposure](./README.md#exposure)
+
+  Previously, these parameters were promoted directly by
+  **feature-u**, but that coupling has been removed in favor of a new
+  internal mechanism allowing any Aspect to inject their namedParams.
+
+  As a result, this **feature-redux** release (V3) requires
+  **feature-u** V3 or greater (and is reflected in it's **feature-u**
+  peerDependency: `">=3.0.0"`).
+
+- **Changed**: The `createReducerAspect()` creator function now
+  accepts only named parameters ... see [API](./README.md#reduceraspect-aspect)
+
+- **Added**: A new optional `initialState` parameter was introduced
+  _(in the `createReducerAspect()` creator function)_, that provides a
+  pre-loaded initial state of your store ... see
+  [API](./README.md#reduceraspect-aspect)
+
+- **Added**: A new optional `allowNoReducers` parameter was introduced
+  _(in the `createReducerAspect()` creator function)_, that directs
+  what happens when no reducers were specified on your features
+  ... see [API](./README.md#reduceraspect-aspect)
+
+- **Internal**: All initialization/validation was moved from the
+  genesis() hook into our constructor.
 
 
 <!-- *** RELEASE *************************************************************** -->

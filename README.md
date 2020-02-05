@@ -93,7 +93,7 @@ Let's see how this all works together ...
   npm install --save react-redux
   ```
   <!--- WITH REVEAL of USAGE:
-  npm install --save feature-u    # VER: >=1.0.0   USAGE: createAspect(), extendAspectProperty() (v1 replaces App with Fassets obj -AND- publicFace with fassets aspect)
+  npm install --save feature-u    # VER: >=3.0.0   USAGE: createAspect(), extendAspectProperty() (v1 replaces App with Fassets obj -AND- publicFace with fassets aspect)
   npm install --save react        # VER: >=0.14.0  USAGE: inject <Provider> component
   npm install --save redux        # VER: >=3.1.0   USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
   npm install --save react-redux  # VER: >=1.0.0   USAGE: <Provider> component
@@ -167,7 +167,8 @@ Polyfills](#potential-need-for-polyfills))_.
 
 **Well that was easy!!** At this point **redux** is **completely setup
 for your application!** The [redux store] has been created and is
-accessible through the standard **redux** [`connect()`] function.
+accessible through the standard **redux** [`connect()`] HoC,
+or the newer [`Hooks`] API.
 
 In the nutshell, that's a highlight of most everything you need to know to use
 **feature-redux**!  _Go forth and compute!_
@@ -175,11 +176,11 @@ In the nutshell, that's a highlight of most everything you need to know to use
 
 ## A Closer Look
 
-**feature-redux** automatically configures [redux] by creating the [store]
-_(accumulating feature [reducers] across your app)_, and making the
-[store] available through the standard **redux** [`connect()`] function,
-_(by injecting the standard **redux** [`<Provider>`] component at the root
-of your app)_.
+**feature-redux** automatically configures [redux] by creating the
+[store] _(accumulating feature [reducers] across your app)_, and
+making the [store] available through the standard **redux**
+[`connect()`] HoC (or the newer [`Hooks`] API), _(by injecting the
+standard **redux** [`<Provider>`] component at the root of your app)_.
 
 It is important to understand that your interface to [redux] has not
 changed in any way.  In other words, you continue to use [redux] the
@@ -473,6 +474,13 @@ this process (_i.e. the inputs and outputs_) are documented here.
    mechanism").  As an example, the [feature-redux-logic] Aspect
    integrates **redux-logic**.
 
+3. **Enhancer Integration**:
+
+   Because **feature-redux** manages [redux], other Aspects can
+   promote their [redux enhancer] through **feature-redux**'s
+   `Aspect.getReduxEnhancer()` API (an "aspect cross-communication
+   mechanism").
+
 
 ### Exposure
 
@@ -482,16 +490,29 @@ this process (_i.e. the inputs and outputs_) are documented here.
    app is by injecting the standard **redux** [`<Provider>`] component at
    the root of your application DOM.  This enables app component
    access to the [redux store] (along with it's `dispatch()` and
-   `getState()`) through the standard **redux** [`connect()`] function.
+   `getState()`) through the standard **redux** [`connect()`] HoC,
+   or the newer [`Hooks`] API.
 
-2. **Middleware Features**:
+2. **Application Life Cycle Hooks - namedParams**:
+
+   **feature-redux** promotes the redux `getState`/`dispatch`
+   functions as namedParams of **feature-u**'s [Application Life Cycle
+   Hooks].
+
+3. **Redux Middleware**:
 
    Because **feature-redux** allows other aspects to inject their
    [redux middleware], whatever that middleware exposes is made
    available.  As an example, the [feature-redux-logic] Aspect
    injects **redux-logic**.
+
+4. **Redux Enhancer**:
+
+   Because **feature-redux** allows other aspects to inject their
+   [redux enhancer], whatever that enhancer exposes is made
+   available.
    
-3. **Other**:
+5. **Other**:
 
    - For good measure, **feature-redux** promotes the [redux store]
      through the `Aspect.getReduxStore()` method.  This provides direct
@@ -503,34 +524,36 @@ this process (_i.e. the inputs and outputs_) are documented here.
 
 ### Error Conditions
 
-When **feature-redux** detects that no reducers have been
-specified by any of your features, it will (by default) throw the
-following exception:
+- **NO REDUCERS**:
 
-```
-***ERROR*** feature-redux found NO reducers within your features
-            ... did you forget to register Feature.reducer aspects in your features?
-            (please refer to the feature-redux docs to see how to override this behavior).
-```
+  When **feature-redux** detects that no reducers have been
+  specified by any of your features, it will (by default) throw the
+  following exception:
 
-Most likely this should in fact be considered an error _(for example
-you neglected to specify the reducer aspects within your features)_.
-**The reasoning is**: _why would you not specify any reducers if your
-using redux?_
+  ```
+  ***ERROR*** feature-redux found NO reducers within your features
+              ... did you forget to register Feature.reducer aspects in your features?
+              (please refer to the feature-redux docs to see how to override this behavior).
+  ```
 
-You can change this behavior through the following configuration:
+  Most likely this should in fact be considered an error _(for example
+  you neglected to specify the reducer aspects within your features)_.
+  **The reasoning is**: _why would you not specify any reducers if your
+  using redux?_
 
-```js
-reducerAspect.config.allowNoReducers$ = true;
-```
+  You can change this behavior through the `allowNoReducers` parameter:
 
-With this option enabled, when no reducers are found, redux will be
-configured with an identity reducer (accompanied with a WARNING
-logging probe).
+  ```js
+  createReducerAspect({allowNoReducers: true})
+  ```
 
-You can also specify your own reducer function in place of the `true`
-value, which will be used ONLY in the scenario where no reducers were
-specified by your features.
+  - when `true`, and no reducers are found, redux will be configured
+    with an identity reducer (accompanied with a WARNING logging
+    probe).
+
+  - you can also specify your own app-wide reducer function in place
+    of the `true` value, which will be used ONLY in the scenario where
+    no reducers were specified by your features.
 
 
 ## API
@@ -539,12 +562,37 @@ specified by your features.
 
 <ul><!--- indentation hack for github - other attempts with style is stripped (be careful with number bullets) ---> 
 
-`API: createReducerAspect([name='reducer']): reducerAspect`
+```
+API: createReducerAspect({name:'reducer',
+                          initialState:undefined,
+                          allowNoReducers:false}): reducerAspect
+```
 
 The `reducerAspect` is the [feature-u] plugin that facilitates
 [redux] integration to your features.
 
-To use this aspect:
+**PARAMS**: _(**Please Note**: only named parameters are used)_
+
+- **name**: The name of this reducer (defaults to 'reducer')
+
+- **initialState**: An optional pre-loaded state that will become the initial
+  state of your store.  
+
+  Typically this is not needed, because your reducers will define the
+  initial state.
+  However, it can be useful to hydrate the state from the server (in
+  universal apps), or to restore a previously serialized user session.
+
+  When supplied, any validation/errors will be detected by redux, as
+  it is passed directly to it's `createStore()`.
+
+- **allowNoReducers**: A boolean -or- app-wide reducer function, that
+  specifies what to do when **no reducers** are found in any or your
+  features (defaults to `false` which throws an error) ... see: **NO
+  REDUCERS** section of [Error Conditions](#error-conditions)
+
+
+**USAGE**:
 
 - Within your mainline, register the **feature-redux**
   `reducerAspect` to **feature-u**'s [`launchApp()`].
@@ -679,17 +727,20 @@ implemented)_ is intended to address this issue.
 
 
 <!--- redux ---> 
+
 [redux]:            https://redux.js.org/
-[redux store]:      https://redux.js.org/docs/api/Store.html
-[store]:            https://redux.js.org/docs/api/Store.html
-[redux middleware]: https://redux.js.org/docs/advanced/Middleware.html
-[actions]:          https://redux.js.org/docs/basics/Actions.html
-[action creators]:  https://redux.js.org/docs/basics/Actions.html#action-creators
-[reducers]:         https://redux.js.org/docs/basics/Reducers.html
-[reducer]:          https://redux.js.org/docs/basics/Reducers.html
+[redux store]:      https://redux.js.org/glossary#store
+[store]:            https://redux.js.org/glossary#store
+[redux middleware]: https://redux.js.org/glossary#middleware
+[redux enhancer]:   https://redux.js.org/glossary#store-enhancer
+[actions]:          https://redux.js.org/glossary#action
+[action creators]:  https://redux.js.org/glossary#action-creator
+[reducers]:         https://redux.js.org/glossary#reducer
+[reducer]:          https://redux.js.org/glossary#reducer
 [selectors]:        https://gist.github.com/abhiaiyer91/aaf6e325cf7fc5fd5ebc70192a1fa170
-[`connect()`]:      https://github.com/reactjs/react-redux/blob/master/docs/api.md#connectmapstatetoprops-mapdispatchtoprops-mergeprops-options
-[`<Provider>`]:     https://github.com/reactjs/react-redux/blob/master/docs/api.md#provider-store
+[`connect()`]:      https://react-redux.js.org/api/connect
+[`Hooks`]:          https://react-redux.js.org/api/hooks
+[`<Provider>`]:     https://react-redux.js.org/api/provider
 
 <!--- redux-logic ---> 
 [redux-logic]:      https://github.com/jeffbski/redux-logic
@@ -697,3 +748,4 @@ implemented)_ is intended to address this issue.
 <!--- 3rd party action managers ---> 
 [action-u]:         https://action-u.js.org/
 [redux-actions]:    https://github.com/reduxactions/redux-actions
+[Application Life Cycle Hooks]: https://feature-u.js.org/cur/appLifeCycle.html

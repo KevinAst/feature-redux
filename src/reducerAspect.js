@@ -11,60 +11,86 @@ import slicedReducer           from './slicedReducer';
 import verify                  from './util/verify';
 import isString                from 'lodash.isstring';
 import isFunction              from 'lodash.isfunction';
+import isPlainObject           from 'lodash.isplainobject';
 
 // our logger (integrated/activated via feature-u)
 const logf = launchApp.diag.logf.newLogger('- ***feature-redux*** reducerAspect: ');
 
 // NOTE: See README for complete description
-export default function createReducerAspect(name='reducer') {
+export default function createReducerAspect(namedParams={}) {
 
-  // validate parameters
+  // ***
+  // *** validate parameters
+  // ***
+
   const check = verify.prefix('createReducerAspect() parameter violation: ');
 
+  // ... namedParams
+  check(isPlainObject(namedParams), 'only named parameters may be supplied');
+
+  // descturcture our individual namedParams
+  // ... NOTE: We do this here (rather in the function signature) to have access
+  //           to the overall namedParams variable - for validation purposes!
+  //           Access via the JavaScript implicit `arguments[0]` variable is 
+  //           NOT reliable (in this context) exhibiting a number of quirks :-(
+  const {name='reducer',
+         initialState=undefined,
+         allowNoReducers=false,
+         ...unknownNamedArgs}   = namedParams;
+
+  // ... name (NOTE: name check takes precedence to facilitate `Aspect.name` identity in subsequent errors :-)
   check(name,            'name is required');
   check(isString(name),  'name must be a string');
 
+  // ... unrecognized positional parameter
+  //     NOTE: when defaulting entire struct, arguments.length is 0
+  check(arguments.length <= 1, `name:${name} ... unrecognized positional parameters (only named parameters can be specified) ... ${arguments.length} positional parameters were found`);
 
-  // create/promote our new aspect
+  // ... unrecognized named parameter
+  const unknownArgKeys = Object.keys(unknownNamedArgs);
+  check(unknownArgKeys.length === 0,  `name:${name} ... unrecognized named parameter(s): ${unknownArgKeys}`);
+
+  // ... allowNoReducers
+  check( (allowNoReducers===true  ||
+          allowNoReducers===false ||
+          isFunction(allowNoReducers)), `name:${name} ... allowNoReducers must be a boolean OR an app-wide reducer function`);
+
+  // ... initialState ... validated by redux directly (simply a pass through)
+
+
+
+  // ***
+  // *** Initialization: register feature-redux proprietary Aspect APIs
+  // ***
+
+  logf('createReducerAspect(): registering feature-redux proprietary Aspect APIs: getReduxStore(), getReduxMiddleware(), and getReduxEnhancer()');
+
+  extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
+  extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
+  extendAspectProperty('getReduxEnhancer', 'feature-redux');   // Aspect.getReduxEnhancer(): StoreEnhancer
+
+
+  // ***
+  // *** create/promote our new aspect
+  // ***
+
   const reducerAspect = createAspect({
     name,
-    genesis,
     validateFeatureContent,
     expandFeatureContent,
     assembleFeatureContent,
     assembleAspectResources,
     getReduxStore,
     injectRootAppElm,
+    injectParamsInHooks,
     config: {
-      allowNoReducers$: false, // PUBLIC: client override to: true || [{reducerFn}]
-      createReduxStore$,       // HIDDEN: createReduxStore$(appReducer, middlewareArr): appStore
-      reduxDevToolHook$,       // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
+      allowNoReducers$: allowNoReducers, // PUBLIC: client override to: true || [{reducerFn}]
+      initialState$:    initialState,    // PUBLIC: client pass-through to redux
+      createReduxStore$,  // HIDDEN: createReduxStore$(appReducer, middlewareArr, enhancerArr): appStore
+      reduxDevToolHook$,  // HIDDEN: reduxDevToolHook$(): {enhancer$, compose$}
     },
   });
   return reducerAspect;
-}
-
-
-/**
- * Register feature-redux proprietary Aspect APIs (required to pass
- * feature-u validation).
- * This must occur early in the life-cycle (i.e. this method) to
- * guarantee the new API is available during feature-u validation.
- *
- * NOTE: To better understand the context in which any returned
- *       validation messages are used, feature-u will prefix them
- *       with: 'launchApp() parameter violation: '
- *
- * @return {string} NONE FOR US ... an error message when self is in an invalid state
- * (falsy when valid).
- *
- * @private
- */
-function genesis() {
-  logf('genesis() registering two new Aspect properties: getReduxStore() -and- getReduxMiddleware()');
-
-  extendAspectProperty('getReduxStore', 'feature-redux');      // Aspect.getReduxStore(): store
-  extendAspectProperty('getReduxMiddleware', 'feature-redux'); // Aspect.getReduxMiddleware(): reduxMiddleware
 }
 
 
@@ -129,7 +155,7 @@ function expandFeatureContent(fassets, feature) {
   feature[this.name] = feature[this.name](fassets);
 
   // apply same slice to our final resolved reducer
-  // ... so it is accessable to our internals (i.e. launchApp)
+  // ... so it is accessible to our internals (i.e. launchApp)
   slicedReducer(slice, feature[this.name]);
 
   logf(`expandFeatureContent() successfully expanded Feature.name:${feature.name}'s Feature.${this.name} and applied slicedReducer() from outer expandWithFassets()`);
@@ -174,35 +200,55 @@ function assembleFeatureContent(fassets, activeFeatures) {
 function assembleAspectResources(fassets, aspects) {
 
   // collect any redux middleware from other aspects through OUR Aspect.getReduxMiddleware() API
-  const hookSummary = [];
+  const middlewareSummaryLog = [];
   const middleware = aspects.reduce( (accum, aspect) => {
     if (aspect.getReduxMiddleware) {
       const reduxMiddleware = aspect.getReduxMiddleware();
       if (reduxMiddleware) {
-        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
+        middlewareSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware()`);
         accum.push( reduxMiddleware );
       }
       else {
-        hookSummary.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware() ... HOWEVER returned null`);
+        middlewareSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxMiddleware() ... HOWEVER returned null`);
       }
     }
     else {
-      hookSummary.push(`\n  Aspect.name:${aspect.name}`);
+      middlewareSummaryLog.push(`\n  Aspect.name:${aspect.name}`);
     }
     return accum;
   }, []);
-  logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${hookSummary}`);
+  logf(`assembleAspectResources() gathered ReduxMiddleware from the following Aspects: ${middlewareSummaryLog}`);
+
+  // collect any redux store enhancers from other aspects through OUR Aspect.getReduxEnhancer() API
+  const enhancerSummaryLog = [];
+  const enhancer = aspects.reduce((accum, aspect) => {
+    if (aspect.getReduxEnhancer) {
+      const reduxEnhancer = aspect.getReduxEnhancer();
+      if (reduxEnhancer) {
+        enhancerSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer()`);
+        accum.push(reduxEnhancer);
+      }
+      else {
+        enhancerSummaryLog.push(`\n  Aspect.name:${aspect.name} <-- defines: getReduxEnhancer() ... HOWEVER returned null`);
+      }
+    }
+    else {
+      enhancerSummaryLog.push(`\n  Aspect.name:${aspect.name}`);
+    }
+    return accum;
+  }, []);
+  logf(`assembleAspectResources() gathered ReduxEnhancer from the following Aspects: ${enhancerSummaryLog}`);
 
   // create our redux store (retained in self for subsequent usage)
   // ... accomplished in internal config micro function (a defensive measure to allow easier overriding by client)
-  logf(`assembleAspectResources() defining our Redux store WITH optional middleware registration`);
-  this.appStore = this.config.createReduxStore$(this.appReducer, middleware);
+  logf(`assembleAspectResources() defining our Redux store WITH optional middleware and enhancer registration`);
+  this.appStore = this.config.createReduxStore$(this.appReducer, middleware, enhancer);
 }
 
 
 /**
  * An internal config micro function that creates/returns the redux
- * app store WITH optional middleware regsistration.
+ * app store WITH optional middleware registration.
  *
  * This logic is broken out in this internal method as a defensive
  * measure to make it easier for a client to override (if needed for
@@ -214,38 +260,89 @@ function assembleAspectResources(fassets, aspects) {
  * reduxMiddleware items to register to redux (zero length array if
  * none).
  *
+ * @param {reduxEnhancer[]} enhancerArr - the optional set of
+ * reduxEnhancer items to register to redux (zero length array if
+ * none).
+ *
  * @return {reduxAppStore} the newly created redux app store.
  *
  * @private
  */
-function createReduxStore$(appReducer, middlewareArr) {
-  // auto configure Redux DevTools (when detected)
+function createReduxStore$(appReducer, middlewareArr, enhancerArr) {
+
+  // collect all redux enhancers (if any)
+  const enhancers = [];
+  // ... middlewareArr: apply enhancer for middleware supplied by other Aspect Plugins
+  if (middlewareArr.length > 0) {
+    enhancers.push(applyMiddleware(...middlewareArr));
+  }
+  // ... enhancerArr: apply enhancers supplied by other Aspect Plugins
+  if (enhancerArr.length > 0) {
+    enhancers.push(...enhancerArr);
+  }
+
+  // define artifacts that automatically embellish Redux DevTools (when detected)
+  // ... used mutually exclusively (see JavaDocs)
   const {enhancer$, compose$} = this.reduxDevToolHook$();
 
-  // define our Redux app-wide store WITH optional middleware regsistration
-  return  middlewareArr.length === 0
-           ? createStore(appReducer, enhancer$) // NOTE: passing enhancer as last argument requires redux@>=3.1.0
-           : createStore(appReducer, compose$(applyMiddleware(...middlewareArr)));
+  // finally - the complete enhancer that encompasses any/all middleware/enhancers
+  const enhancer = enhancers.length === 0 ? enhancer$ : compose$(...enhancers);
+
+  // define our Redux app-wide store
+  // NOTE: passing enhancer as last argument requires redux@>=3.1.0
+  return createStore(appReducer, this.initialState$, enhancer);
+
 }
 
 
 /**
- * Auto detect Redux Dev Tools when installed in browser.
+ * Auto detect Redux Dev Tools when installed/enabled in browser.
  *
  * NOTE: It's OK to use Redux Dev Tools in production: http://bit.ly/rdtOkForProd
  *
  * @return  {enhancer$, compose$} to be used in creating redux store.
  *
+ * These items are to be used mutually exclusively!
+ *
+ * - enhancer$: a pre-defined enhancer representing ReduxDevTools
+ *              - to be used when NO OTHER enhancers are present
+ *              - will be `undefined` when ReduxDevTools is undetected
+ *                ... which is ALSO a VALID param to createStore()
+ * 
+ * - compose$: an enhancer compose function that AUTO INCLUDES ReduxDevTools
+ *             - to be used when ADDITIONAL enhancers are present
+ *             - reverts to the "standard" enhancer compose function
+ *               when ReduxDevTools NOT installed/enabled
+ *
  * @private
  */
 function reduxDevToolHook$() {
-  const win       = window || {}; // no-op in non-browser env (i.e. react-native)
-  const extension = win.__REDUX_DEVTOOLS_EXTENSION__;
+  // apply empty object (that no-ops) when in non-browser env
+  // ... react-native, or SSR (Server Side Rendering), etc.
+  const win = window || {};
+
+  // a function returning a pre-defined enhancer which IS the ReduxDevTools
+  // ... undefined when ReduxDevTools not installed/enabled 
+  const extension = win.__REDUX_DEVTOOLS_EXTENSION__; 
+
+  // a pre-defined enhancer representing ReduxDevTools
+  // ... undefined when ReduxDevTools not installed/enabled
+  //     NOTE: undefined can be passed into createStore
+  //           representing NO enhancers
   const enhancer$ = extension && extension();
+
+  // an enhancer compose function that AUTO INCLUDES ReduxDevTools
+  // ... OR the or the "standard" enhancer compose function
+  //     when ReduxDevTools NOT installed/enabled
   const compose$  = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+  // report when ReduxDevTools is active
   if (extension) {
     logf.force('createReduxStore$() hooking into  Redux DevTools (installed in your browser)');
   }
+
+  // expose ReduxDevTools adornments (see comments above)
+  // ... NOTE: these resources are used mutually exclusively
   return {enhancer$, compose$};
 }
 
@@ -293,6 +390,25 @@ function injectRootAppElm(fassets, curRootAppElm) {
 
 
 /**
+ * Promote our redux state/dispatch functions in the namedParams
+ * feature-u's Application Life Cycle Hooks
+ *
+ * @param {Fassets} fassets the Fassets object used in 
+ * cross-feature-communication.
+ *
+ * @return {plainObject} our redux state/dispatch functions: {getState, dispatch}
+ *
+ * @private
+ */
+function injectParamsInHooks(fassets) {
+  return {
+    getState: this.appStore.getState,
+    dispatch: this.appStore.dispatch
+  };
+}
+
+
+/**
  * @private
  *
  * Interpret the supplied features, generating our top-level app
@@ -309,13 +425,13 @@ function injectRootAppElm(fassets, curRootAppElm) {
  *
  * @return {appReducerFn} a top-level app reducer function.
  */
-export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=null) { // ... named export ONLY used in testing
+export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$) { // ... named export ONLY used in testing
 
   // iterated over all activeFeatures,
   // ... generating the "shaped" genesis structure
   //     used in combining all reducers into a top-level app reducer
   //     EXAMPLE:
-  //     - given following reducers (each from a seperate Feature):
+  //     - given following reducers (each from a separate Feature):
   //         Feature.reducer: slicedReducer('device',           deviceReducerFn)
   //         Feature.reducer: slicedReducer('auth',             authReducerFn)
   //         Feature.reducer: slicedReducer('view.currentView', currentViewReducerFn)
@@ -339,7 +455,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
     if (feature[aspectName]) {
 
       const reducer = feature[aspectName]; // our feature content is a reducer!
-      const slice   = reducer.slice;       // our validation ensures embelishment via slicedReducer()
+      const slice   = reducer.slice;       // our validation ensures embellishment via slicedReducer()
 
       // interpret the slice's federated namespace into a structure with depth
       const nodeNames    = slice.split('.');
@@ -350,7 +466,7 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
         const nodeName = nodeNames[i];
         const leafNode = (i === nodeNames.length-1);
 
-        // utilize existing subNode (from other features), or create new (on first occurance)
+        // utilize existing subNode (from other features), or create new (on first occurrence)
         const subNodeExisted = (runningNode[nodeName]) ? true : false;
         const subNode        = runningNode[nodeName] || {};
 
@@ -403,20 +519,20 @@ export function accumAppReducer(aspectName, activeFeatures, allowNoReducers$=nul
   }
 
   // convert our "shaped" genesis structure into a single top-level app reducer function
-  logf(`assembleFeatureContent() the overal appState shape is: `, shapedGenesis);
+  logf(`assembleFeatureContent() the overall appState shape is: `, shapedGenesis);
   const appReducer = accumReducer(shapedGenesis);
   return appReducer;
 }
 
 
 /**
- * A recursive function that acumulates all reducers in the supplied
- * genisisNode into a single reducer function.
+ * A recursive function that accumulates all reducers in the supplied
+ * genesisNode into a single reducer function.
  *
- * @param {GenisisStruct} genesisNode a "shaped" genesis structure
+ * @param {GenesisStruct} genesisNode a "shaped" genesis structure
  * used in combining all reducers.
  *
- * @return {reducerFn} a reducer function that recursivally
+ * @return {reducerFn} a reducer function that recursively
  * accumulates all reducers found in the supplied genesisNode.
  *
  * @private

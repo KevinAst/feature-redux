@@ -22,13 +22,67 @@ describe('reducerAspect() tests', () => {
 
   describe('validate createReducerAspect() parameter violation', () => {
 
-    expect( () => createReducerAspect(null) )
-      .toThrow(/name is required/);
-    // THROW: createReducerAspect() parameter violation: name is required
+    test("()", () => {
+    expect( () => createReducerAspect() )
+      .not.toThrow(); // all default params is acceptable
+    });
 
-    expect( () => createReducerAspect(123) )
-      .toThrow(/name must be a string/);
-    // THROW: createReducerAspect() parameter violation: name must be a string
+    test("null", () => {
+      expect( () => createReducerAspect(null) )
+        .toThrow(/only named parameters may be supplied/);
+      // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    });
+
+    test("123", () => {
+      expect( () => createReducerAspect(123) )
+        .toThrow(/only named parameters may be supplied/);
+      // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    });
+
+    test("'myName BUT NOT positional :-('", () => {
+      expect( () => createReducerAspect('myName BUT NOT positional :-(') )
+        .toThrow(/only named parameters may be supplied/);
+      // THROW: createReducerAspect() parameter violation: only named parameters may be supplied
+    });
+
+    test("{name: 123}", () => {
+      expect( () => createReducerAspect({name: 123}) )
+        .toThrow(/name must be a string/);
+      // THROW: createReducerAspect() parameter violation: name must be a string
+    });
+
+    test("{allowNoReducers: 123}", () => {
+      expect( () => createReducerAspect({allowNoReducers: 123}) )
+        .toThrow(/reducer.*allowNoReducers must be a boolean OR an app-wide reducer/);
+      // THROW: createReducerAspect() parameter violation: allowNoReducers must be a boolean OR an app-wide reducer function
+    });
+
+    test("{allowNoReducers: false}", () => {
+      expect( () => createReducerAspect({allowNoReducers: false}) )
+        .not.toThrow(); // boolean false OK
+    });
+
+    test("{allowNoReducers: true}", () => {
+      expect( () => createReducerAspect({allowNoReducers: true}) )
+        .not.toThrow(); // boolean true OK
+    });
+
+    test("{allowNoReducers: (p) => p}", () => {
+      expect( () => createReducerAspect({allowNoReducers: (p) => p}) )
+        .not.toThrow(); // reducer function OK
+    });
+
+    test("{name: 'myName', badParam1: 123, badParm2: 456}", () => {
+      expect( () => createReducerAspect({name: 'myName', badParam1: 123, badParm2: 456}) )
+        .toThrow(/myName.*unrecognized named parameter.*badParam1.*badParm2/);
+      // THROW: createReducerAspect() parameter violation: unrecognized named parameter(s): badParam1,badParm2
+    });
+
+    test("({name: 'myName'}, 'badPositional')", () => {
+      expect( () => createReducerAspect({name: 'myName'}, 'badPositional') )
+        .toThrow(/myName.*unrecognized positional parameters.*only named parameters can be specified.*2 positional parameters were found/);
+      // THROW: createReducerAspect() parameter violation: name:myName ... unrecognized positional parameters (only named parameters can be specified) ... 2 positional parameters were found
+    });
 
   });
 
@@ -38,7 +92,7 @@ describe('reducerAspect() tests', () => {
     expect(reducerAspect.appStore)
       .toBe(undefined);
 
-    // NOTE: don't undersand this ... for some reason adding test to the process causes it NOT to throw
+    // NOTE: don't understand this ... for some reason adding test to the process causes it NOT to throw
     expect( () => reducerAspect.getReduxStore() )
       .toThrow(/reducerAspect.getReduxStore.*can only be called after a successful launchApp/);
     // THROW: ***ERROR*** feature-redux reducerAspect.getReduxStore() can only be called after a successful launchApp() execution
@@ -58,7 +112,7 @@ describe('reducerAspect() tests', () => {
       }),
       createAspect$({
         name: 'aspectWithMiddleware',
-        getReduxMiddleware: () => 'simulated midleware',
+        getReduxMiddleware: () => 'simulated middleware',
       }),
     ];
 
@@ -69,7 +123,7 @@ describe('reducerAspect() tests', () => {
         // simulate createStore ... just pass back the middlewareArr to be tested
         return middlewareArr;
       };
-      launchApp.diag.logf.enable(); // excercise logs (to insure there is NO coding bugs)
+      launchApp.diag.logf.enable(); // exercise logs (to insure there is NO coding bugs)
     });      
     afterEach(() => {
       // reset everything back to original
@@ -80,7 +134,69 @@ describe('reducerAspect() tests', () => {
     test('perform the test', () => {
       reducerAspect.assembleAspectResources('simulated fassets', aspects);
       expect(reducerAspect.appStore)
-        .toEqual(['simulated midleware']);
+        .toEqual(['simulated middleware']);
+    });
+  });
+
+
+  describe('insure assembleAspectResources() enhancer accumulation handles all 3 scenarios', () => {
+
+    const aspects = [ // here are the 3 scenarios
+      createAspect$({
+        name: 'aspectWithNoEnhancer',
+      }),
+      createAspect$({
+        name: 'aspectWithNullEnhancer',
+        getReduxEnhancer: () => null,
+      }),
+      createAspect$({
+        name: 'aspectWithEnhancer',
+        getReduxEnhancer: () => 'simulated enhancer',
+      }),
+    ];
+
+    let original_createReduxStore$ = null;
+    beforeEach(() => {
+      original_createReduxStore$ = reducerAspect.config.createReduxStore$;
+      reducerAspect.config.createReduxStore$ = function (appReducer, middlewareArr, enhancerArr) {
+        // simulate createStore ... just pass back the enhancerArr to be tested
+        return enhancerArr;
+      };
+      launchApp.diag.logf.enable(); // exercise logs (to insure there is NO coding bugs)
+    });
+    afterEach(() => {
+      // reset everything back to original
+      reducerAspect.config.createReduxStore$ = original_createReduxStore$;
+      launchApp.diag.logf.disable();
+    });
+
+    test('perform the test', () => {
+      reducerAspect.assembleAspectResources('simulated fassets', aspects);
+      expect(reducerAspect.appStore)
+        .toEqual(['simulated enhancer']);
+    });
+  });
+
+  // NOTE: introduced by @sylvainlg
+  describe('insure createReduxStore$() succeeds error with enhancers', () => {
+
+    // our single enhancer
+    const dummyReducerEnhancer = (createStore) => (reducer,
+                                                   initialState,
+                                                   enhancer) => {
+      const dummyReducer = (state, action) => {
+        const newState = reducer(state, action);
+        return newState;
+      };
+      return createStore(dummyReducer, initialState, enhancer);
+    };
+
+    test('perform the test', () => {
+      // invoke our internal createReduxStore$() with a single enhancer
+      // ... NOTE: this is invoking our real code
+      const store = reducerAspect.config.createReduxStore$(state => state, [], [dummyReducerEnhancer]);
+      // insure it succeeded ... KJB: can't get it to fail - even with missing spread operator (the reason this test was created)
+      expect(store).toBeInstanceOf(Object);
     });
   });
 
