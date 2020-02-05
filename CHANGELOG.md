@@ -11,7 +11,7 @@ and **contains migration instructions**.
 
 Release  | What                                                     | *When*
 ---------|----------------------------------------------------------|------------------
-[v3.0.0] | Redux Enhancer Injection and Aspect Plugin Changes       | *January, xx, 2020*
+[v3.0.0] | Redux Enhancer Injection and Aspect Plugin Changes       | *February, 5, 2020*
 [v1.0.1] | Address Security Alerts                                  | *December 10, 2019*
 [v1.0.0] | feature-u V1 Integration                                 | *August 14, 2018*
 [v0.1.3] | Establish Polyfill Strategy                              | *July 2, 2018*
@@ -19,7 +19,7 @@ Release  | What                                                     | *When*
 [v0.1.1] | react-native android patch                               | *March 7, 2018*
 [v0.1.0] | Initial Release                                          | *March 6, 2018*
 
-[v3.0.0]: #v300---redux-enhancer-injection-and-aspect-plugin-changes-january-xx-2020
+[v3.0.0]: #v300---redux-enhancer-injection-and-aspect-plugin-changes-february-5-2020
 [v1.0.1]: #v101---address-security-alerts-december-10-2019
 [v1.0.0]: #v100---feature-u-v1-integration-august-14-2018
 [v0.1.3]: #v013---establish-polyfill-strategy-july-2-2018
@@ -59,7 +59,7 @@ UNRELEASED *********************************************************************
 
 <!-- *** RELEASE *************************************************************** -->
 
-## v3.0.0 - Redux Enhancer Injection and Aspect Plugin Changes *(January, xx, 2020)*
+## v3.0.0 - Redux Enhancer Injection and Aspect Plugin Changes *(February, 5, 2020)*
 
 [GitHub Content](https://github.com/KevinAst/feature-redux/tree/v3.0.0)
 &bull;
@@ -96,7 +96,7 @@ client code is necessary_!
   internal mechanism allowing any Aspect to inject their namedParams.
 
   As a result, this **feature-redux** release (V3) requires
-  **feature-u** V3 or greater (??AI: and is reflected in it's **feature-u**
+  **feature-u** V3 or greater (and is reflected in it's **feature-u**
   peerDependency: `">=3.0.0"`).
 
 - **Changed**: The `createReducerAspect()` creator function now
@@ -114,8 +114,6 @@ client code is necessary_!
 
 - **Internal**: All initialization/validation was moved from the
   genesis() hook into our constructor.
-
-- **More**: ??
 
 
 <!-- *** RELEASE *************************************************************** -->
