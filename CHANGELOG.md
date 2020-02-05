@@ -67,10 +67,10 @@ UNRELEASED *********************************************************************
 &bull;
 [Diff](https://github.com/KevinAst/feature-redux/compare/v1.0.1...v3.0.0)
 
-**NOTE**: This release contains **breaking changes** from prior
+**NOTE**: This release contains **minor breaking changes** from prior
 releases ... some API changes, at minimum a new version of the
-**feature-u** peer dependency _(also v3.0.0)_.  _A retrofit of client
-code is necessary_!
+**feature-u** peer dependency _(also v3.0.0)_.  _A trivial retrofit of
+client code is necessary_!
 
 - Pardon the version bump (from v1.0.1 to v3.0.0).
   We skipped v2 strictly as an internal management convenience - to
@@ -95,8 +95,9 @@ code is necessary_!
   **feature-u**, but that coupling has been removed in favor of a new
   internal mechanism allowing any Aspect to inject their namedParams.
 
-  As a result, if you are using **feature-u** V3 or greater, you must
-  upgrade to **feature-redux** V3 or greater!
+  As a result, this **feature-redux** release (V3) requires
+  **feature-u** V3 or greater (??AI: and is reflected in it's **feature-u**
+  peerDependency: `">=3.0.0"`).
 
 - **Changed**: The `createReducerAspect()` creator function now
   accepts only named parameters ... see [API](./README.md#reduceraspect-aspect)
@@ -115,12 +116,6 @@ code is necessary_!
   genesis() hook into our constructor.
 
 - **More**: ??
-
-- **Added**: ?? The **feature-redux** Aspect now promotes the
-  `{getState, dispatch}` as parameters to **feature-u**'s [Application
-  Life Cycle Hooks](https://feature-u.js.org/cur/appLifeCycle.html).
-  As a result, this plugin has now updated it's **feature-u**
-  peerDependency to ">=3.0.0".
 
 - **Security**: ?? Address potential security vulnerabilities in
   dependent libs (mostly devDependencies completely unrelated to
