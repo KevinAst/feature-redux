@@ -93,7 +93,7 @@ Let's see how this all works together ...
   npm install --save react-redux
   ```
   <!--- WITH REVEAL of USAGE:
-  npm install --save feature-u    # VER: >=1.0.0   USAGE: createAspect(), extendAspectProperty() (v1 replaces App with Fassets obj -AND- publicFace with fassets aspect)
+  npm install --save feature-u    # VER: >=3.0.0   USAGE: createAspect(), extendAspectProperty() (v1 replaces App with Fassets obj -AND- publicFace with fassets aspect)
   npm install --save react        # VER: >=0.14.0  USAGE: inject <Provider> component
   npm install --save redux        # VER: >=3.1.0   USAGE: applyMiddleware(), combineReducers(), compose(), createStore()
   npm install --save react-redux  # VER: >=1.0.0   USAGE: <Provider> component

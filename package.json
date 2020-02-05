@@ -89,12 +89,12 @@
     "eslint": "^3.19.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-react": "^7.6.1",
-    "feature-u": ">=1.0.0",
+    "feature-u": "^3.0.0",
     "jest": "^22.1.4",
     "npm-run-all": "^4.0.2",
     "react": ">=0.14.0",
-    "react-redux": ">=1.0.0",
     "react-dom": ">=16.0.1",
+    "react-redux": ">=1.0.0",
     "redux": ">=3.1.0",
     "rimraf": "^2.6.1",
     "webpack": "^2.4.1"
@@ -105,7 +105,7 @@
     "lodash.isstring": "^4.0.1"
   },
   "peerDependencies": {
-    "feature-u": ">=1.0.0",
+    "feature-u": ">=3.0.0",
     "react": ">=0.14.0",
     "redux": ">=3.1.0",
     "react-redux": ">=1.0.0",
