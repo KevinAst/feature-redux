@@ -97,7 +97,7 @@
     "react-redux": ">=1.0.0",
     "redux": ">=3.1.0",
     "rimraf": "^2.6.1",
-    "webpack": "^2.4.1"
+    "webpack": "^5.75.0"
   },
   "dependencies": {
     "lodash.isfunction": "^3.0.8",
